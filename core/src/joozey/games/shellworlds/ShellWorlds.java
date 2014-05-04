@@ -142,7 +142,7 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
     {
         for( Body body : bodyList )
         {
-            if( new Vector3( body.getX(), body.getY(), 0 ).dst( worldPosition ) < 600 )
+            if( new Vector3( body.getX(), body.getY(), 0 ).dst( worldPosition ) < 650 )
             {
                 return body;
             }

@@ -24,6 +24,7 @@ public class Body extends Sprite implements GameRunnable
     private float size;
     private Color orbitColor;
     private String name;
+    private float velocity;
 
     private static TextureRegion createTextureRegion( String planetName, float size )
     {
@@ -45,6 +46,8 @@ public class Body extends Sprite implements GameRunnable
         this.distance = distance;
         this.size = size;
         this.texture = super.getTexture();
+        this.velocity = 3.3f / distance;    //based on a orbitperiod : distance of 1 : 3.3*10^18
+
 
         Random r = new Random();
         this.name = "";
@@ -88,7 +91,7 @@ public class Body extends Sprite implements GameRunnable
     @Override
     public void run( GameThread gameThread )
     {
-        angle += 3f * GameData.getSpeed() * size / distance;
+        angle += velocity * GameData.getSpeed();
         this.setPosition(
             -this.getWidth() / 2 - distance * (float)Math.cos( angle ),
             -this.getHeight() / 2 - distance * (float)Math.sin( angle )

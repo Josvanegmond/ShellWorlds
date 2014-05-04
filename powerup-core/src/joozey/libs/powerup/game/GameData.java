@@ -88,7 +88,7 @@ public class GameData
 
     public static float getSpeed()
     {
-        return 10f;//speed/Gdx.graphics.getFramesPerSecond();
+        return 10f;
     }
 
     public static void setSpeed( float speed )
