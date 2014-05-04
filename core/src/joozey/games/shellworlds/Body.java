@@ -59,7 +59,7 @@ public class Body extends Sprite implements GameRunnable
 
 
         Color color = new Color();
-        ColorMath.xform( color, 0.4f, ColorMath.ColorC.LUMINANCE, true );
+        ColorMath.xform( color, 0.2f, ColorMath.ColorC.LUMINANCE, true );
         ColorMath.xform( color, 0.6f, ColorMath.ColorC.SATURATION, true );
         ColorMath.xform( color, (float)Math.random(), ColorMath.ColorC.HUE, true );
         color.a = 1f;

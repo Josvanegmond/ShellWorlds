@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import joozey.libs.powerup.control.GameThread;
 import joozey.libs.powerup.game.GameData;
+import joozey.libs.powerup.graphics.ColorMath;
 
 public class ShellWorlds extends Game implements ApplicationListener, InputProcessor, GestureDetector.GestureListener
 {
@@ -100,7 +101,10 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        camera.position.set( followBody.getX(), followBody.getY(), 0 );
+        if( followBody != null ) {
+            camera.position.set(followBody.getX(), followBody.getY(), 0);
+        }
+
         camera.update();
 
         shapeRenderer.setProjectionMatrix(camera.combined);
@@ -122,7 +126,8 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
         for( Body body : bodyList )
         {
             Vector3 viewPosition = camera.project(new Vector3(body.getX(), body.getY(), 0));
-            font.setColor( body.getOrbitColor() );
+            font.setColor(
+                    ColorMath.xform( body.getOrbitColor(), 0.5f, ColorMath.ColorC.LUMINANCE, false ) );
             font.draw( batch, body.getName(), viewPosition.x, viewPosition.y );
         }
 
@@ -142,7 +147,7 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
     {
         for( Body body : bodyList )
         {
-            if( new Vector3( body.getX(), body.getY(), 0 ).dst( worldPosition ) < 650 )
+            if( new Vector3( body.getX(), body.getY(), 0 ).dst( worldPosition ) < 600 )
             {
                 return body;
             }
@@ -229,7 +234,9 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
     {
         if( lockInput == false )
         {
+            followBody = null;
             camera.translate( (prevScreen.x - screenX) * camera.zoom, (prevScreen.y - screenY) * -camera.zoom );
+            //camera.rotateAround( new Vector3( followBody.getX(), followBody.getY(), 0 ), new Vector3(1,0,0), (prevScreen.x - screenX));
 
             prevScreen.x = screenX;
             prevScreen.y = screenY;
