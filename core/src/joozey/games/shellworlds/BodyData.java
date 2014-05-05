@@ -20,6 +20,7 @@ public class BodyData extends GameObject2DData
     private float velocity;
     private float size;
     private boolean shell;
+    private boolean highlighted;
 
     public BodyData( float distance, float size, float width )
     {
@@ -52,11 +53,13 @@ public class BodyData extends GameObject2DData
     {
         return this.shell;
     }
-
     public void setShell( boolean on )
     {
         this.shell = on;
     }
+
+    public boolean isHighlighted() { return this.highlighted; }
+    public void setHighlighted( boolean on ) { this.highlighted = on; }
 
     public String getName()
     {

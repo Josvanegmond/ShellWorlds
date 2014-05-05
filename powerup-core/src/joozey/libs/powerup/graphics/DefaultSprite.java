@@ -5,12 +5,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 import joozey.libs.powerup.object.BatchManager;
 import joozey.libs.powerup.util.DefaultColors;
+import joozey.libs.powerup.object.BatchManager.DrawType;
 
 public class DefaultSprite extends Sprite
 {
@@ -21,8 +23,9 @@ public class DefaultSprite extends Sprite
 	private float lightValue = 0f;
 	private Sprite alphamapSprite;
 	private Pixmap spritePixmap;
+    private ShapeRenderer.ShapeType shapeType;
 
-	public DefaultSprite( String bitmapName )
+    public DefaultSprite( String bitmapName )
 	{
 		super( new Texture( Gdx.files.internal( "data/" + bitmapName ) ) );
 
@@ -73,8 +76,19 @@ public class DefaultSprite extends Sprite
 		this.setOrigin( texture.getWidth() / 2, texture.getHeight() / 2 );
 	}
 
-	//@Override
-	public final void draw( SpriteBatch batch )
+    public void draw( DrawType drawType )
+    {
+        if( drawType == DrawType.BATCH ) {
+            this.drawBatch();
+        }
+
+        if( drawType == DrawType.SHAPE ) {
+            this.drawShape();
+        }
+    }
+
+	@Override
+	public final void draw( Batch batch )
 	{
 		super.setPosition( this.x + this.offsetX, this.y + this.offsetY );
 		
@@ -89,10 +103,11 @@ public class DefaultSprite extends Sprite
 		super.setColor(color);
 	}
 
-	public void draw()
+	protected void drawBatch()
 	{
 		this.draw( BatchManager.getSpriteBatch() );
 	}
+    protected void drawShape() { }
 
 	@Override
 	public void setPosition( float x, float y )
@@ -137,4 +152,7 @@ public class DefaultSprite extends Sprite
 		this.lightValue = lightValue;
 	}
 
+    public ShapeRenderer.ShapeType getShapeType() {
+        return shapeType;
+    }
 }

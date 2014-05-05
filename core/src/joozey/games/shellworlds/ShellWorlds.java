@@ -77,7 +77,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         camera = new OrthographicCamera( GameData.getWidth(), GameData.getHeight() );
         batch = BatchManager.getSpriteBatch();
 
-        shapeRenderer = new ShapeRenderer();
+        shapeRenderer = BatchManager.getShapeRenderer();
 
         FreeTypeFontGenerator.FreeTypeFontParameter params = new FreeTypeFontGenerator.FreeTypeFontParameter();
         params.size = 12; // font size 16 pixels
@@ -110,6 +110,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         camera.update();
 
+
+        //drawing the backdrop
         batch.begin();
 
         float scale = 0.75f;
@@ -118,44 +120,35 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         normalProjection.translate( camera.position.cpy().scl(-0.001f) );
         batch.setProjectionMatrix(normalProjection);
 
-        background.draw(batch);
+        background.draw( BatchManager.DrawType.BATCH );
 
         batch.end();
 
-        shapeRenderer.setProjectionMatrix(camera.combined);
+
+        //draw shapes of objects
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setProjectionMatrix(camera.combined);
 
         for( BodyObject bodyObject : bodyObjectList )
         {
-            BodyData bodyData = bodyObject.getData();
-            if( bodyObject != touchedBodyOrbit ) {
-                shapeRenderer.setColor(bodyData.getOrbitColor());
-            }
-            else
-            {
-                shapeRenderer.setColor(bodyData.getSelectedOrbitColor());
-            }
-            shapeRenderer.circle(0, 0, bodyData.getDistance());
+            bodyObject.draw( BatchManager.DrawType.SHAPE );
         }
 
         shapeRenderer.end();
 
-        batch.begin();
 
-        batch.setProjectionMatrix(camera.combined);
+        //draw batch of objects
+        batch.begin();
 
         for( BodyObject bodyObject : bodyObjectList)
         {
-            bodyObject.update();
-        }
-
-        normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
-        batch.setProjectionMatrix(normalProjection);
-
-        for( int i = 0; i < bodyObjectList.size(); i++ )
-        {
-            BodyObject bodyObject = bodyObjectList.get( i );
             BodyData bodyData = bodyObject.getData();
+
+            batch.setProjectionMatrix(camera.combined);
+            bodyObject.draw( BatchManager.DrawType.BATCH );
+
+            normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
+            batch.setProjectionMatrix(normalProjection);
 
             Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ));
             font.setColor( bodyData.getSelectedOrbitColor() );
@@ -353,6 +346,15 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public void run(GameThread gameThread)
     {
+        for( BodyObject bodyObject : bodyObjectList ) {
+            if (bodyObject != touchedBodyOrbit) {
+                bodyObject.getData().setHighlighted( false );
+            } else {
+                bodyObject.getData().setHighlighted( true );
+            }
+
+            bodyObject.update();
+        }
     }
 
     @Override

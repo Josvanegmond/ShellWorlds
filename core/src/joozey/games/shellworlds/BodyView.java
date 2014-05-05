@@ -1,7 +1,10 @@
 package joozey.games.shellworlds;
 
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
 import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.graphics.StackedSprite;
+import joozey.libs.powerup.object.BatchManager;
 
 /**
  * Created by mint on 4/30/14.
@@ -22,7 +25,7 @@ public class BodyView extends StackedSprite
     }
 
     @Override
-    public void draw()
+    public void drawBatch()
     {
         if( this.bodyData != null ) {
             if (this.bodyData.hasShell() != shell) {
@@ -36,7 +39,24 @@ public class BodyView extends StackedSprite
                 }
             }
 
-            super.draw();
+            super.drawBatch();
         }
+    }
+
+
+    @Override
+    public void drawShape()
+    {
+        ShapeRenderer shapeRenderer = BatchManager.getShapeRenderer();
+
+        if( bodyData.isHighlighted() == false ) {
+            shapeRenderer.setColor(bodyData.getOrbitColor());
+        }
+        else
+        {
+            shapeRenderer.setColor(bodyData.getSelectedOrbitColor());
+        }
+
+        shapeRenderer.circle(0, 0, bodyData.getDistance());
     }
 }

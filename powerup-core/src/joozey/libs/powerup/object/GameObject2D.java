@@ -1,12 +1,14 @@
 package joozey.libs.powerup.object;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.ArrayList;
+
 import joozey.libs.powerup.control.GameDrawable;
 import joozey.libs.powerup.control.GameThread;
 import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.modifier.Modifier;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
 
 public abstract class GameObject2D extends GameObject implements GameDrawable
 {
@@ -58,6 +60,11 @@ public abstract class GameObject2D extends GameObject implements GameDrawable
 		this.data.setDestroyed();
 	}
 
+    public final void draw( BatchManager.DrawType drawType )
+    {
+        this.sprite.draw(drawType);
+    }
+
 	@Override
 	public void update()
 	{
@@ -73,8 +80,7 @@ public abstract class GameObject2D extends GameObject implements GameDrawable
 		Vector2 size = data.getSize();
 		
 		this.sprite.setPosition( position.x - offset.x, position.y - offset.y );
-		this.sprite.setSize( size.x, size.y );
-		this.sprite.draw();
+		this.sprite.setSize(size.x, size.y);
 	}
 
 	public void update( Vector2 position )
