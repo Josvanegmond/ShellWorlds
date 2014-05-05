@@ -15,9 +15,11 @@ public class BodyData extends GameObject2DData
     private float angle = 0f;
     private float distance;
     private Color orbitColor;
+    private Color selectedOrbitColor;
     private String name;
     private float velocity;
     private float size;
+    private boolean shell;
 
     public BodyData( float distance, float size, float width )
     {
@@ -42,7 +44,18 @@ public class BodyData extends GameObject2DData
         ColorMath.xform( color, (float)Math.random(), ColorMath.ColorC.HUE, true );
         color.a = 1f;
 
-        this.setOrbitColor(color);
+        this.orbitColor = color;
+        this.selectedOrbitColor = ColorMath.xform( color, 0.5f, ColorMath.ColorC.LUMINANCE, false );
+    }
+
+    public boolean hasShell()
+    {
+        return this.shell;
+    }
+
+    public void setShell( boolean on )
+    {
+        this.shell = on;
     }
 
     public String getName()
@@ -50,14 +63,14 @@ public class BodyData extends GameObject2DData
         return this.name;
     }
 
-    public void setOrbitColor( Color color )
-    {
-        this.orbitColor = color;
-    }
-
     public Color getOrbitColor()
     {
         return this.orbitColor;
+    }
+
+    public Color getSelectedOrbitColor()
+    {
+        return this.selectedOrbitColor;
     }
 
     public float getDistance()
@@ -77,5 +90,4 @@ public class BodyData extends GameObject2DData
     {
         return this.size;
     }
-
 }

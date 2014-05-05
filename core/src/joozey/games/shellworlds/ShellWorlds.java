@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import joozey.libs.powerup.control.GameRunnable;
 import joozey.libs.powerup.control.GameThread;
 import joozey.libs.powerup.game.GameData;
-import joozey.libs.powerup.graphics.ColorMath;
+import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.object.BatchManager;
 
 public class ShellWorlds extends Game implements GameRunnable, ApplicationListener, InputProcessor, GestureDetector.GestureListener
@@ -33,8 +33,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     private int pointers = 0;
     private boolean lockInput = false;
     private BodyObject followBodyObject;
+    private BodyObject touchedBodyOrbit;
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
+    private DefaultSprite background;
 
     public static final String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789][_!$%#@|\\/?-+=()*&.;,{}\"´`'<>";
 
@@ -57,7 +59,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         bodyObjectList = new ArrayList<BodyObject>();
 
-        BodyObject star = new BodyObject( gameThread, "star", 0.001f, 10f + (float)(Math.random() * 10f) );
+        BodyObject star = new BodyObject( gameThread, "star", 0.001f, 10f + (float)(Math.random() * 10f), false );
         gameThread.register( star );
         bodyObjectList.add( star );
 
@@ -65,7 +67,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         for( int i = 0; i < 10; i++ )
         {
-            BodyObject planet = new BodyObject( gameThread, planets[(int)(Math.random()*planets.length)], 2000 + (i+2) * 7000 + (float)Math.random() * 4000, (float)Math.random() * 5f + 5f );
+            BodyObject planet = new BodyObject( gameThread, planets[(int)(Math.random()*planets.length)], 2000 + (i+2) * 7000 + (float)Math.random() * 4000, (float)Math.random() * 5f + 5f, ((int)(Math.random()*2)==0)?true:false );
             gameThread.register( planet );
             bodyObjectList.add( planet );
         }
@@ -85,6 +87,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/ModernDestronic.ttf"));
         font = generator.generateFont( params );
         generator.dispose(); // don't forget to dispose to avoid memory leaks!
+
+        background = new DefaultSprite( "background1.png" );
     }
 
     @Override
@@ -97,7 +101,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     public void render()
     {
         Gdx.gl.glClearColor( 0, 0, 0, 1 );
-        Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if ( followBodyObject != null ) {
             Vector2 position = followBodyObject.getData().getPosition();
@@ -106,19 +110,38 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         camera.update();
 
+        batch.begin();
+
+        float scale = 0.75f;
+        float ratio = (float)Gdx.graphics.getHeight() / (float)Gdx.graphics.getWidth();
+        Matrix4 normalProjection = new Matrix4().setToOrtho2D( 512f * (1f-scale), 512f * (1f-scale * ratio), 1024 * scale, 1024 * scale * ratio );
+        normalProjection.translate( camera.position.cpy().scl(-0.001f) );
+        batch.setProjectionMatrix(normalProjection);
+
+        background.draw(batch);
+
+        batch.end();
+
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
         for( BodyObject bodyObject : bodyObjectList )
         {
             BodyData bodyData = bodyObject.getData();
-            shapeRenderer.setColor( bodyData.getOrbitColor() );
-            shapeRenderer.circle( 0, 0, bodyData.getDistance() );
+            if( bodyObject != touchedBodyOrbit ) {
+                shapeRenderer.setColor(bodyData.getOrbitColor());
+            }
+            else
+            {
+                shapeRenderer.setColor(bodyData.getSelectedOrbitColor());
+            }
+            shapeRenderer.circle(0, 0, bodyData.getDistance());
         }
 
         shapeRenderer.end();
 
         batch.begin();
+
         batch.setProjectionMatrix(camera.combined);
 
         for( BodyObject bodyObject : bodyObjectList)
@@ -126,7 +149,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             bodyObject.update();
         }
 
-        Matrix4 normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
+        normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
         batch.setProjectionMatrix(normalProjection);
 
         for( int i = 0; i < bodyObjectList.size(); i++ )
@@ -135,8 +158,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             BodyData bodyData = bodyObject.getData();
 
             Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ));
-            font.setColor(
-                    ColorMath.xform( bodyData.getOrbitColor(), 0.5f, ColorMath.ColorC.LUMINANCE, false ) );
+            font.setColor( bodyData.getSelectedOrbitColor() );
             font.draw( batch, bodyData.getName(), viewPosition.x, viewPosition.y );
         }
 
@@ -149,6 +171,22 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         {
             BodyData bodyData = bodyObject.getData();
             if( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ).dst( worldPosition ) < 1200 )
+            {
+                return bodyObject;
+            }
+        }
+
+        return null;
+    }
+
+
+
+    public BodyObject getBodyOnDistance( Vector3 worldPosition )
+    {
+        for( BodyObject bodyObject : bodyObjectList)
+        {
+            BodyData bodyData = bodyObject.getData();
+            if( Math.abs( bodyData.getPosition().len() - worldPosition.len() ) < 5000 )
             {
                 return bodyObject;
             }
@@ -231,6 +269,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             camera.translate( (prevScreen.x - screenX) * camera.zoom, (prevScreen.y - screenY) * -camera.zoom );
             //camera.rotateAround( new Vector3( followBody.getX(), followBody.getY(), 0 ), new Vector3(1,0,0), (prevScreen.x - screenX));
 
+            touchedBodyOrbit = getBodyOnDistance( camera.unproject( new Vector3( Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0 ) ) );
+
             prevScreen.x = screenX;
             prevScreen.y = screenY;
         }
@@ -239,7 +279,9 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     }
 
     @Override
-    public boolean mouseMoved(int screenX, int screenY) {
+    public boolean mouseMoved(int screenX, int screenY)
+    {
+        //touchedBodyOrbit = getBodyOnDistance( camera.unproject( new Vector3( screenX, screenY, 0 ) ) );
         return false;
     }
 
@@ -259,14 +301,12 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     }
 
     @Override
-    public boolean tap(float screenX, float screenY, int i, int i2) {
-
-        Vector3 worldCoordinates = new Vector3(screenX, screenY, 0);
-        camera.unproject(worldCoordinates);
-        BodyObject foundBodyObject = getBodyOnPosition( worldCoordinates );
-        if( foundBodyObject != null )
+    public boolean tap(float screenX, float screenY, int i, int i2)
+    {
+        //TODO move to a button
+        if( touchedBodyOrbit != null )
         {
-            followBodyObject = foundBodyObject;
+            followBodyObject = touchedBodyOrbit;
         }
         return false;
     }

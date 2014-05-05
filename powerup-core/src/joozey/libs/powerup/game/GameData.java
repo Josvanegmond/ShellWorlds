@@ -88,7 +88,7 @@ public class GameData
 
     public static float getSpeed()
     {
-        return 1f;
+        return 10f;
     }
 
     public static void setSpeed( float speed )
