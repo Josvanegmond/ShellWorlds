@@ -28,11 +28,11 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 {
     private OrthographicCamera camera;
     private SpriteBatch batch;
-    private ArrayList<Body> bodyList;
+    private ArrayList<BodyObject> bodyObjectList;
     private Vector2 prevScreen;
     private int pointers = 0;
     private boolean lockInput = false;
-    private Body followBody;
+    private BodyObject followBodyObject;
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
 
@@ -51,27 +51,26 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         inputMultiplexer.addProcessor( new GestureDetector( this ) );
         inputMultiplexer.addProcessor( this );
 
-
         GameData gameData = new GameData( 0, 0 );
         GameThread gameThread = new GameThread( gameData );
         gameThread.register( this );
 
-        bodyList = new ArrayList<Body>();
+        bodyObjectList = new ArrayList<BodyObject>();
 
-        Body star = new Body( "star", 0.001f, 2f + (float)(Math.random() * 3f) );
+        BodyObject star = new BodyObject( gameThread, "star", 0.001f, 10f + (float)(Math.random() * 10f) );
         gameThread.register( star );
-        bodyList.add( star );
+        bodyObjectList.add( star );
 
         String[] planets = { "brown-planet", "blue-planet", "purple-planet" };
 
         for( int i = 0; i < 10; i++ )
         {
-            Body planet = new Body( planets[(int)(Math.random()*planets.length)], 200 + (i+2) * 700 + (float)Math.random() * 400, (float)Math.random() * 0.8f + 0.2f );
+            BodyObject planet = new BodyObject( gameThread, planets[(int)(Math.random()*planets.length)], 2000 + (i+2) * 7000 + (float)Math.random() * 4000, (float)Math.random() * 5f + 5f );
             gameThread.register( planet );
-            bodyList.add( planet );
+            bodyObjectList.add( planet );
         }
 
-        followBody = bodyList.get(0);
+        followBodyObject = bodyObjectList.get(0);
 
         camera = new OrthographicCamera( GameData.getWidth(), GameData.getHeight() );
         batch = BatchManager.getSpriteBatch();
@@ -89,28 +88,32 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     }
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
         batch.dispose();
-
-        for( Body body : bodyList )
-        {
-            body.dispose();
-        }
     }
 
     @Override
     public void render()
     {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor( 0, 0, 0, 1 );
+        Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
+
+        if ( followBodyObject != null ) {
+            Vector2 position = followBodyObject.getData().getPosition();
+            camera.position.set( position.x, position.y, 0 );
+        }
+
+        camera.update();
 
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        for( Body body : bodyList )
+        for( BodyObject bodyObject : bodyObjectList )
         {
-            shapeRenderer.setColor( body.getOrbitColor() );
-            shapeRenderer.circle( 0, 0, body.getDistance() );
+            BodyData bodyData = bodyObject.getData();
+            shapeRenderer.setColor( bodyData.getOrbitColor() );
+            shapeRenderer.circle( 0, 0, bodyData.getDistance() );
         }
 
         shapeRenderer.end();
@@ -118,32 +121,36 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         batch.begin();
         batch.setProjectionMatrix(camera.combined);
 
-        for( Body body : bodyList )
+        for( BodyObject bodyObject : bodyObjectList)
         {
-            body.draw();
+            bodyObject.update();
         }
 
         Matrix4 normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
         batch.setProjectionMatrix(normalProjection);
 
-        for( Body body : bodyList )
+        for( int i = 0; i < bodyObjectList.size(); i++ )
         {
-            Vector3 viewPosition = camera.project(new Vector3(body.getX(), body.getY(), 0));
+            BodyObject bodyObject = bodyObjectList.get( i );
+            BodyData bodyData = bodyObject.getData();
+
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ));
             font.setColor(
-                    ColorMath.xform( body.getOrbitColor(), 0.5f, ColorMath.ColorC.LUMINANCE, false ) );
-            font.draw( batch, body.getName(), viewPosition.x, viewPosition.y );
+                    ColorMath.xform( bodyData.getOrbitColor(), 0.5f, ColorMath.ColorC.LUMINANCE, false ) );
+            font.draw( batch, bodyData.getName(), viewPosition.x, viewPosition.y );
         }
 
         batch.end();
     }
 
-    public Body getBodyOnPosition( Vector3 worldPosition )
+    public BodyObject getBodyOnPosition( Vector3 worldPosition )
     {
-        for( Body body : bodyList )
+        for( BodyObject bodyObject : bodyObjectList)
         {
-            if( new Vector3( body.getX(), body.getY(), 0 ).dst( worldPosition ) < 600 )
+            BodyData bodyData = bodyObject.getData();
+            if( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ).dst( worldPosition ) < 1200 )
             {
-                return body;
+                return bodyObject;
             }
         }
 
@@ -220,7 +227,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     {
         if( lockInput == false )
         {
-            followBody = null;
+            followBodyObject = null;
             camera.translate( (prevScreen.x - screenX) * camera.zoom, (prevScreen.y - screenY) * -camera.zoom );
             //camera.rotateAround( new Vector3( followBody.getX(), followBody.getY(), 0 ), new Vector3(1,0,0), (prevScreen.x - screenX));
 
@@ -239,8 +246,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public boolean scrolled( int scrollAmount )
     {
-        camera.zoom += scrollAmount * camera.zoom / (2 * camera.zoom);
-        camera.zoom = Math.max( camera.zoom, 0.1f );
+        camera.zoom += 20 * scrollAmount * camera.zoom / (3 * camera.zoom);
+        camera.zoom = Math.max( camera.zoom, 2f );
         return false;
     }
 
@@ -256,10 +263,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         Vector3 worldCoordinates = new Vector3(screenX, screenY, 0);
         camera.unproject(worldCoordinates);
-        Body foundBody = getBodyOnPosition( worldCoordinates );
-        if( foundBody != null )
+        BodyObject foundBodyObject = getBodyOnPosition( worldCoordinates );
+        if( foundBodyObject != null )
         {
-            followBody = foundBody;
+            followBodyObject = foundBodyObject;
         }
         return false;
     }
@@ -289,11 +296,11 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     public boolean zoom(float initialDistance, float distance)
     {
         //Calculate pinch to zoom
-        float difference = (initialDistance - distance)/500;
+        float difference = (initialDistance - distance)/50;
         difference = Math.min( Math.max( difference, -0.1f ), 0.1f );
 
-        camera.zoom += difference * camera.zoom / (2 * camera.zoom);
-        camera.zoom = Math.max( camera.zoom, 0.1f );
+        camera.zoom += 20 * difference * camera.zoom / (3 * camera.zoom);
+        camera.zoom = Math.max( camera.zoom, 2f );
 
         return false;
     }
@@ -306,12 +313,6 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public void run(GameThread gameThread)
     {
-        if( camera != null ) {
-            if (followBody != null) {
-                camera.position.set(followBody.getX(), followBody.getY(), 0);
-            }
-            camera.update();
-        }
     }
 
     @Override
