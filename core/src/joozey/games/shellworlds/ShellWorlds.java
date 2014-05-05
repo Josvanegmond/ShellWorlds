@@ -18,11 +18,13 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 
+import joozey.libs.powerup.control.GameRunnable;
 import joozey.libs.powerup.control.GameThread;
 import joozey.libs.powerup.game.GameData;
 import joozey.libs.powerup.graphics.ColorMath;
+import joozey.libs.powerup.object.BatchManager;
 
-public class ShellWorlds extends Game implements ApplicationListener, InputProcessor, GestureDetector.GestureListener
+public class ShellWorlds extends Game implements GameRunnable, ApplicationListener, InputProcessor, GestureDetector.GestureListener
 {
     private OrthographicCamera camera;
     private SpriteBatch batch;
@@ -52,6 +54,7 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
 
         GameData gameData = new GameData( 0, 0 );
         GameThread gameThread = new GameThread( gameData );
+        gameThread.register( this );
 
         bodyList = new ArrayList<Body>();
 
@@ -71,7 +74,7 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
         followBody = bodyList.get(0);
 
         camera = new OrthographicCamera( GameData.getWidth(), GameData.getHeight() );
-        batch = new SpriteBatch();
+        batch = BatchManager.getSpriteBatch();
 
         shapeRenderer = new ShapeRenderer();
 
@@ -101,12 +104,6 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if( followBody != null ) {
-            camera.position.set(followBody.getX(), followBody.getY(), 0);
-        }
-
-        camera.update();
-
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
@@ -119,6 +116,12 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
         shapeRenderer.end();
 
         batch.begin();
+        batch.setProjectionMatrix(camera.combined);
+
+        for( Body body : bodyList )
+        {
+            body.draw();
+        }
 
         Matrix4 normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
         batch.setProjectionMatrix(normalProjection);
@@ -131,16 +134,7 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
             font.draw( batch, body.getName(), viewPosition.x, viewPosition.y );
         }
 
-        batch.setProjectionMatrix(camera.combined);
-
-        for( Body body : bodyList )
-        {
-            body.draw(batch);
-        }
-
         batch.end();
-
-
     }
 
     public Body getBodyOnPosition( Vector3 worldPosition )
@@ -198,14 +192,6 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
         {
             prevScreen.x = screenX;
             prevScreen.y = screenY;
-
-            Vector3 worldCoordinates = new Vector3(screenX, screenY, 0);
-            camera.unproject(worldCoordinates);
-            Body foundBody = getBodyOnPosition( worldCoordinates );
-            if( foundBody != null )
-            {
-                followBody = foundBody;
-            }
         }
 
         if( pointers == 2 )
@@ -266,7 +252,15 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
     }
 
     @Override
-    public boolean tap(float v, float v2, int i, int i2) {
+    public boolean tap(float screenX, float screenY, int i, int i2) {
+
+        Vector3 worldCoordinates = new Vector3(screenX, screenY, 0);
+        camera.unproject(worldCoordinates);
+        Body foundBody = getBodyOnPosition( worldCoordinates );
+        if( foundBody != null )
+        {
+            followBody = foundBody;
+        }
         return false;
     }
 
@@ -307,5 +301,21 @@ public class ShellWorlds extends Game implements ApplicationListener, InputProce
     @Override
     public boolean pinch(Vector2 vector2, Vector2 vector22, Vector2 vector23, Vector2 vector24) {
         return false;
+    }
+
+    @Override
+    public void run(GameThread gameThread)
+    {
+        if( camera != null ) {
+            if (followBody != null) {
+                camera.position.set(followBody.getX(), followBody.getY(), 0);
+            }
+            camera.update();
+        }
+    }
+
+    @Override
+    public boolean isInitialised() {
+        return true;
     }
 }

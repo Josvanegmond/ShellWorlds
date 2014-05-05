@@ -1,10 +1,7 @@
 package joozey.games.shellworlds;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.Random;
 
@@ -12,11 +9,13 @@ import joozey.libs.powerup.control.GameRunnable;
 import joozey.libs.powerup.control.GameThread;
 import joozey.libs.powerup.game.GameData;
 import joozey.libs.powerup.graphics.ColorMath;
+import joozey.libs.powerup.graphics.DefaultSprite;
+import joozey.libs.powerup.graphics.StackedSprite;
 
 /**
  * Created by mint on 4/30/14.
  */
-public class Body extends Sprite implements GameRunnable
+public class Body extends StackedSprite implements GameRunnable
 {
     private Texture texture;
     private float angle = 0f;
@@ -26,21 +25,9 @@ public class Body extends Sprite implements GameRunnable
     private String name;
     private float velocity;
 
-    private static TextureRegion createTextureRegion( String planetName, float size )
-    {
-        Texture texture = new Texture(Gdx.files.internal("data/" + planetName + ".png"));
-        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
-        return new TextureRegion(texture, 0, 0, 160, 160);
-    }
-
     public Body( String planetName, float distance, float size )
     {
-        super( createTextureRegion( planetName, size ) );
-
-        this.setScale(size);
-        this.setOrigin(this.getWidth() / 2, this.getHeight() / 2);
-        this.setPosition(-this.getWidth() / 2 - distance, -this.getHeight() / 2);
+        super( new DefaultSprite( planetName + ".png"), 0, 0 );
 
         this.angle = (float)(Math.random() * Math.PI*2);
         this.distance = distance;
@@ -48,6 +35,8 @@ public class Body extends Sprite implements GameRunnable
         this.texture = super.getTexture();
         this.velocity = 3.3f / distance;    //based on a orbitperiod : distance of 1 : 3.3*10^18
 
+        this.addSprite( new DefaultSprite("shell.png"), 0, 0 );
+        this.setScale( size, size );
 
         Random r = new Random();
         this.name = "";
@@ -56,7 +45,6 @@ public class Body extends Sprite implements GameRunnable
         {
             name += (char)(r.nextInt(26) + 'a');
         }
-
 
         Color color = new Color();
         ColorMath.xform( color, 0.2f, ColorMath.ColorC.LUMINANCE, true );

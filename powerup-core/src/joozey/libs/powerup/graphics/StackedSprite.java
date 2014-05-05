@@ -1,11 +1,12 @@
 package joozey.libs.powerup.graphics;
 
-import java.util.Stack;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
+
+import java.util.Stack;
 
 public class StackedSprite extends DefaultSprite
 {
@@ -44,23 +45,23 @@ public class StackedSprite extends DefaultSprite
 	{
 			this.spriteStack.remove( index );
 	}
-	
-	@Override
-	public void draw()
-	{
-		super.draw();
-		
-		for( DefaultSprite sprite : this.spriteStack )
-		{
-			if( sprite != this )
-			{
-				Vector2 origOffset = sprite.getOffset();
-				sprite.setOffset( origOffset.x + this.offsetX, origOffset.y + this.offsetY );
-				sprite.draw();
-				sprite.setOffset( origOffset.x, origOffset.y );
-			}
-		}
-	}
+
+    @Override
+    public void draw()
+    {
+        super.draw();
+
+        for( DefaultSprite sprite : this.spriteStack )
+        {
+            if( sprite != this )
+            {
+                Vector2 origOffset = sprite.getOffset();
+                sprite.setOffset( origOffset.x + this.offsetX, origOffset.y + this.offsetY );
+                sprite.draw();
+                sprite.setOffset( origOffset.x, origOffset.y );
+            }
+        }
+    }
 	
 	@Override
 	public void setColor( Color color )

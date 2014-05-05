@@ -57,7 +57,7 @@ public class GameThread extends Thread
 					}
 				}
 
-                Thread.sleep( 10 );
+                Thread.sleep( 30 );
 			}
 
 			catch( InterruptedException e )
