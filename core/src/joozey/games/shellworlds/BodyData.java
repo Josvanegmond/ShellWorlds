@@ -22,6 +22,11 @@ public class BodyData extends GameObject2DData
     private boolean shell;
     private boolean highlighted;
 
+    private float mass;
+    private float density;
+    private float atmosphere;
+    private float diversity;
+
     public BodyData( float distance, float size, float width )
     {
         super( 0, 0, width, width );
@@ -30,6 +35,11 @@ public class BodyData extends GameObject2DData
         this.distance = distance;
         this.size = size;
         this.velocity = 3.3f / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
+
+        this.mass = (float)Math.random() * 0.8f + 0.2f;
+        this.density = (float)Math.random() * 0.9f + 0.1f;
+        this.atmosphere = (float)Math.random() * 1f;
+        this.diversity = (float)Math.random() * 1f;
 
         Random r = new Random();
         this.name = "";
@@ -92,5 +102,37 @@ public class BodyData extends GameObject2DData
     public float getBodySize()
     {
         return this.size;
+    }
+
+    public float getMass() {
+        return mass;
+    }
+
+    public float getDensity() {
+        return density;
+    }
+
+    public float getAtmosphere() {
+        return atmosphere;
+    }
+
+    public float getDiversity() {
+        return diversity;
+    }
+
+    public String readMassInfo() {
+        return "Mass scalar: " + (this.mass * 10);
+    }
+
+    public String readDensityInfo() {
+        return "Surface density: " + this.density;
+    }
+
+    public String readAtmosphereInfo() {
+        return "Atmosphere density: " + this.atmosphere;
+    }
+
+    public String readDiversityInfo() {
+        return "Diversity variable: " + (this.diversity + 10);
     }
 }

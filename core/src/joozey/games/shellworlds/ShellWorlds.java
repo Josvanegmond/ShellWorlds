@@ -33,18 +33,17 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     private int pointers = 0;
     private boolean lockInput = false;
     private BodyObject followBodyObject;
-    private BodyObject touchedBodyOrbit;
+    private BodyObject touchedBodyOrbit, touchedBody;
     private ShapeRenderer shapeRenderer;
-    private BitmapFont font;
+    private BitmapFont alienFont, normalFont;
     private DefaultSprite background;
+    private DefaultSprite marker;
 
     public static final String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789][_!$%#@|\\/?-+=()*&.;,{}\"´`'<>";
 
     @Override
     public void create()
     {
-        //Texture.setEnforcePotImages(false);
-
         prevScreen = new Vector2();
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
@@ -80,15 +79,21 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         shapeRenderer = BatchManager.getShapeRenderer();
 
         FreeTypeFontGenerator.FreeTypeFontParameter params = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        params.size = 12; // font size 16 pixels
+        params.size = 14; // fontsize 16 pixels
         params.characters = FONT_CHARACTERS;
         params.genMipMaps = true;
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/ModernDestronic.ttf"));
-        font = generator.generateFont( params );
+        alienFont = generator.generateFont( params );
+
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("data/SFAtarianSystem.ttf"));
+        params.size = 13; // fontsize 16 pixels
+        normalFont = generator.generateFont( params );
+
         generator.dispose(); // don't forget to dispose to avoid memory leaks!
 
         background = new DefaultSprite( "background1.png" );
+        marker = new DefaultSprite( "marker.png" );
     }
 
     @Override
@@ -150,20 +155,40 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
             batch.setProjectionMatrix(normalProjection);
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ));
-            font.setColor( bodyData.getSelectedOrbitColor() );
-            font.draw( batch, bodyData.getName(), viewPosition.x, viewPosition.y );
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 1500, bodyData.getPosition().y, 0 ));
+            alienFont.setColor(bodyData.getSelectedOrbitColor());
+            alienFont.draw(batch, bodyData.getName(), viewPosition.x, viewPosition.y);
         }
+
+        //draw planet info at cursor
+        if( this.touchedBody != null )
+        {
+            BodyData bodyData = this.touchedBody.getData();
+
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 1500, bodyData.getPosition().y, 0 ));
+            normalFont.setColor(bodyData.getSelectedOrbitColor());
+            normalFont.draw(batch, bodyData.readMassInfo(), viewPosition.x + 16, viewPosition.y - 16);
+            normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x + 16, viewPosition.y - 32);
+            normalFont.draw(batch, bodyData.readAtmosphereInfo(), viewPosition.x + 16, viewPosition.y - 48);
+            normalFont.draw(batch, bodyData.readDiversityInfo(), viewPosition.x + 16, viewPosition.y - 64);
+        }
+
+        //draw marker
+        marker.setPosition( Gdx.graphics.getWidth()/2f - marker.getWidth()/2f, Gdx.graphics.getHeight()/2f - marker.getHeight()/2f );
+        marker.draw( BatchManager.DrawType.BATCH );
 
         batch.end();
     }
+
+
+
+
 
     public BodyObject getBodyOnPosition( Vector3 worldPosition )
     {
         for( BodyObject bodyObject : bodyObjectList)
         {
-            BodyData bodyData = bodyObject.getData();
-            if( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ).dst( worldPosition ) < 1200 )
+            if( isBodyOnPosition( bodyObject, worldPosition ) == true )
             {
                 return bodyObject;
             }
@@ -172,6 +197,16 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         return null;
     }
 
+    public boolean isBodyOnPosition( BodyObject bodyObject, Vector3 worldPosition )
+    {
+        BodyData bodyData = bodyObject.getData();
+        if( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ).dst( worldPosition ) < 5000 )
+        {
+            return true;
+        }
+
+        return false;
+    }
 
 
     public BodyObject getBodyOnDistance( Vector3 worldPosition )
@@ -179,7 +214,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         for( BodyObject bodyObject : bodyObjectList)
         {
             BodyData bodyData = bodyObject.getData();
-            if( Math.abs( bodyData.getPosition().len() - worldPosition.len() ) < 5000 )
+            if( Math.abs( bodyData.getPosition().len() - worldPosition.len() ) < 2000 )
             {
                 return bodyObject;
             }
@@ -224,17 +259,17 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-        pointers++;
+        this.pointers++;
 
         if( pointers == 1 )
         {
-            prevScreen.x = screenX;
-            prevScreen.y = screenY;
+            this.prevScreen.x = screenX;
+            this.prevScreen.y = screenY;
         }
 
-        if( pointers == 2 )
+        if( this.pointers == 2 )
         {
-            lockInput = true;
+            this.lockInput = true;
         }
 
         return false;
@@ -243,11 +278,11 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 
-        pointers--;
+        this.pointers--;
 
         if( pointers == 0 )
         {
-            lockInput = false;
+            this.lockInput = false;
         }
 
         return false;
@@ -256,16 +291,26 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer)
     {
+        this.touchedBodyOrbit = null;
+        this.touchedBody = null;
+
         if( lockInput == false )
         {
-            followBodyObject = null;
-            camera.translate( (prevScreen.x - screenX) * camera.zoom, (prevScreen.y - screenY) * -camera.zoom );
+            this.followBodyObject = null;
+            this.camera.translate( (prevScreen.x - screenX) * this.camera.zoom, (this.prevScreen.y - screenY) * -this.camera.zoom );
             //camera.rotateAround( new Vector3( followBody.getX(), followBody.getY(), 0 ), new Vector3(1,0,0), (prevScreen.x - screenX));
 
-            touchedBodyOrbit = getBodyOnDistance( camera.unproject( new Vector3( Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0 ) ) );
+            Vector3 screenCenter = new Vector3( Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0 );
+            this.touchedBodyOrbit = getBodyOnDistance( this.camera.unproject( screenCenter ) );
 
-            prevScreen.x = screenX;
-            prevScreen.y = screenY;
+            if( touchedBodyOrbit != null ) {
+                if (isBodyOnPosition( this.touchedBodyOrbit, screenCenter ) == true) {
+                    this.touchedBody = this.touchedBodyOrbit;
+                }
+            }
+
+            this.prevScreen.x = screenX;
+            this.prevScreen.y = screenY;
         }
 
         return false;
@@ -281,8 +326,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public boolean scrolled( int scrollAmount )
     {
-        camera.zoom += 20 * scrollAmount * camera.zoom / (3 * camera.zoom);
-        camera.zoom = Math.max( camera.zoom, 2f );
+        this.camera.zoom += 20 * scrollAmount * this.camera.zoom / (3 * this.camera.zoom);
+        this.camera.zoom = Math.max( this.camera.zoom, 2f );
         return false;
     }
 
@@ -297,9 +342,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     public boolean tap(float screenX, float screenY, int i, int i2)
     {
         //TODO move to a button
-        if( touchedBodyOrbit != null )
+        if( this.touchedBodyOrbit != null )
         {
-            followBodyObject = touchedBodyOrbit;
+            this.followBodyObject = this.touchedBodyOrbit;
+            this.touchedBody = this.touchedBodyOrbit;
         }
         return false;
     }
@@ -347,10 +393,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     public void run(GameThread gameThread)
     {
         for( BodyObject bodyObject : bodyObjectList ) {
-            if (bodyObject != touchedBodyOrbit) {
-                bodyObject.getData().setHighlighted( false );
-            } else {
+            if (bodyObject == touchedBodyOrbit) {
                 bodyObject.getData().setHighlighted( true );
+            } else {
+                bodyObject.getData().setHighlighted( false );
             }
 
             bodyObject.update();
