@@ -34,7 +34,7 @@ public class BodyData extends GameObject2DData
         this.angle = (float)(Math.random() * Math.PI*2);
         this.distance = distance;
         this.size = size;
-        this.velocity = 3.3f / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
+        this.velocity = 33 / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
 
         this.mass = (float)Math.random() * 0.8f + 0.2f;
         this.density = (float)Math.random() * 0.9f + 0.1f;
@@ -92,7 +92,7 @@ public class BodyData extends GameObject2DData
     }
 
     public float getAngle() { return this.angle; }
-    public void addAngle( float amount ) { this.angle += amount; }
+    public void addAngle( float amount ) { this.angle += amount/(Math.PI*2); }
 
     public float getVelocity()
     {

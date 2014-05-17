@@ -37,8 +37,10 @@ public class BodyObject extends GameObject2D
         bodyData.addAngle( bodyData.getVelocity() * GameData.getSpeed() );
         bodyData.setPosition(
                 (float)(-bodyData.getSize().x / 2. - bodyData.getDistance() * Math.cos( bodyData.getAngle() ) ),
-                (float)(-bodyData.getSize().y / 2. - bodyData.getDistance() * (float)Math.sin( bodyData.getAngle() ) )
+                (float)(-bodyData.getSize().y / 2. - bodyData.getDistance() * Math.sin( bodyData.getAngle() ) )
         );
+
+        super.run( gameThread );
     }
 
 }

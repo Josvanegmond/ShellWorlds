@@ -36,6 +36,7 @@ public abstract class GameObject2D extends GameObject implements GameDrawable
 	public void run( GameThread gameThread )
 	{
 		if( sprite == null || data == null ) { throw new GameObjectNotInitializedError(); }
+        this.update();
 	}
 
 	public void init( GameObject2DData data, DefaultSprite sprite )
@@ -44,7 +45,7 @@ public abstract class GameObject2D extends GameObject implements GameDrawable
 		this.sprite = sprite;
 		this.initialised = true;
 
-		this.gameThread.register( this );
+		//this.gameThread.register( this );
 	}
 
 	@Override

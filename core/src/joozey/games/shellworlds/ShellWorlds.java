@@ -39,6 +39,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     private DefaultSprite background;
     private DefaultSprite marker;
 
+    private GameThread gameThread;
+
     public static final String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789][_!$%#@|\\/?-+=()*&.;,{}\"´`'<>";
 
     @Override
@@ -53,21 +55,22 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         inputMultiplexer.addProcessor( this );
 
         GameData gameData = new GameData( 0, 0 );
-        GameThread gameThread = new GameThread( gameData );
-        gameThread.register( this );
+        gameThread = new GameThread( gameData );
+        //gameThread.register( this );
+        //TODO: separating planet movement to different thread will cause jittering with camera following objects
 
         bodyObjectList = new ArrayList<BodyObject>();
 
-        BodyObject star = new BodyObject( gameThread, "star", 0.001f, 10f + (float)(Math.random() * 10f), false );
-        gameThread.register( star );
+        BodyObject star = new BodyObject( gameThread, "star", 0.001f, 20f + (float)(Math.random() * 10f), false );
         bodyObjectList.add( star );
 
         String[] planets = { "brown-planet", "blue-planet", "purple-planet" };
 
+        float minDistance = 6000;
         for( int i = 0; i < 10; i++ )
         {
-            BodyObject planet = new BodyObject( gameThread, planets[(int)(Math.random()*planets.length)], 2000 + (i+2) * 7000 + (float)Math.random() * 4000, (float)Math.random() * 5f + 5f, ((int)(Math.random()*2)==0)?true:false );
-            gameThread.register( planet );
+            minDistance += 2000f + ((float)Math.random() * 5000f) * ((float) Math.random() * 5f);
+            BodyObject planet = new BodyObject( gameThread, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 5f + 5f, ((int)(Math.random()*2)==0)?true:false );
             bodyObjectList.add( planet );
         }
 
@@ -92,7 +95,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         generator.dispose(); // don't forget to dispose to avoid memory leaks!
 
-        background = new DefaultSprite( "background1.png" );
+        background = new DefaultSprite( "background2.png" );
         marker = new DefaultSprite( "marker.png" );
     }
 
@@ -108,11 +111,6 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         Gdx.gl.glClearColor( 0, 0, 0, 1 );
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if ( followBodyObject != null ) {
-            Vector2 position = followBodyObject.getData().getPosition();
-            camera.position.set( position.x, position.y, 0 );
-        }
-
         camera.update();
 
 
@@ -121,7 +119,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         float scale = 0.75f;
         float ratio = (float)Gdx.graphics.getHeight() / (float)Gdx.graphics.getWidth();
-        Matrix4 normalProjection = new Matrix4().setToOrtho2D( 512f * (1f-scale), 512f * (1f-scale * ratio), 1024 * scale, 1024 * scale * ratio );
+        Matrix4 normalProjection = new Matrix4().setToOrtho2D( background.getWidth()/2f * (1f-scale), background.getHeight()/2f * (1f-scale * ratio), background.getWidth() * scale, background.getHeight() * scale * ratio );
         normalProjection.translate( camera.position.cpy().scl(-0.001f) );
         batch.setProjectionMatrix(normalProjection);
 
@@ -155,9 +153,9 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
             batch.setProjectionMatrix(normalProjection);
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 1500, bodyData.getPosition().y, 0 ));
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ));
             alienFont.setColor(bodyData.getSelectedOrbitColor());
-            alienFont.draw(batch, bodyData.getName(), viewPosition.x, viewPosition.y);
+            alienFont.draw(batch, bodyData.getName(), viewPosition.x + 50f, viewPosition.y);
         }
 
         //draw planet info at cursor
@@ -165,12 +163,12 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         {
             BodyData bodyData = this.touchedBody.getData();
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 1500, bodyData.getPosition().y, 0 ));
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ));
             normalFont.setColor(bodyData.getSelectedOrbitColor());
-            normalFont.draw(batch, bodyData.readMassInfo(), viewPosition.x + 16, viewPosition.y - 16);
-            normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x + 16, viewPosition.y - 32);
-            normalFont.draw(batch, bodyData.readAtmosphereInfo(), viewPosition.x + 16, viewPosition.y - 48);
-            normalFont.draw(batch, bodyData.readDiversityInfo(), viewPosition.x + 16, viewPosition.y - 64);
+            normalFont.draw(batch, bodyData.readMassInfo(), viewPosition.x + 66f, viewPosition.y - 16f);
+            normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x + 66f, viewPosition.y - 32f);
+            normalFont.draw(batch, bodyData.readAtmosphereInfo(), viewPosition.x + 66f, viewPosition.y - 48f);
+            normalFont.draw(batch, bodyData.readDiversityInfo(), viewPosition.x + 66f, viewPosition.y - 64f);
         }
 
         //draw marker
@@ -326,7 +324,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public boolean scrolled( int scrollAmount )
     {
-        this.camera.zoom += 20 * scrollAmount * this.camera.zoom / (3 * this.camera.zoom);
+        this.camera.zoom += 20f * scrollAmount * this.camera.zoom / (3f * this.camera.zoom);
         this.camera.zoom = Math.max( this.camera.zoom, 2f );
         return false;
     }
@@ -375,10 +373,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     public boolean zoom(float initialDistance, float distance)
     {
         //Calculate pinch to zoom
-        float difference = (initialDistance - distance)/50;
+        float difference = (initialDistance - distance)/50f;
         difference = Math.min( Math.max( difference, -0.1f ), 0.1f );
 
-        camera.zoom += 20 * difference * camera.zoom / (3 * camera.zoom);
+        camera.zoom += difference;
         camera.zoom = Math.max( camera.zoom, 2f );
 
         return false;
@@ -392,14 +390,24 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public void run(GameThread gameThread)
     {
-        for( BodyObject bodyObject : bodyObjectList ) {
-            if (bodyObject == touchedBodyOrbit) {
-                bodyObject.getData().setHighlighted( true );
-            } else {
-                bodyObject.getData().setHighlighted( false );
-            }
+        for (BodyObject bodyObject : bodyObjectList) {
+            bodyObject.run( gameThread );
 
-            bodyObject.update();
+            //TODO: this should go to different thread but causes jittering
+            bodyObject.run( gameThread );
+
+            if (bodyObject == touchedBodyOrbit) {
+                bodyObject.getData().setHighlighted(true);
+            } else {
+                bodyObject.getData().setHighlighted(false);
+            }
+        }
+
+        if( camera != null ) {
+            if (followBodyObject != null) {
+                Vector2 position = followBodyObject.getData().getPosition();
+                camera.position.set(position.x, position.y, 0f);
+            }
         }
     }
 
