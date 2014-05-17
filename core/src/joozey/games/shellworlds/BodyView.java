@@ -1,5 +1,8 @@
 package joozey.games.shellworlds;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import joozey.libs.powerup.graphics.DefaultSprite;
@@ -48,15 +51,43 @@ public class BodyView extends StackedSprite
     public void drawShape()
     {
         ShapeRenderer shapeRenderer = BatchManager.getShapeRenderer();
+        Color color = bodyData.getOrbitColor();
+        Color selectedColor = bodyData.getSelectedOrbitColor();
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         if( bodyData.isHighlighted() == false ) {
-            shapeRenderer.setColor(bodyData.getOrbitColor());
+            shapeRenderer.setColor( color.r, color.g, color.b, 0.5f );
         }
         else
         {
-            shapeRenderer.setColor(bodyData.getSelectedOrbitColor());
+            shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, 1f );
         }
 
         shapeRenderer.circle(0, 0, bodyData.getDistance());
+
+        shapeRenderer.end();
+
+        //TODO: should make this a responsibility for batchManager
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        if( bodyData.isHighlighted() == false ) {
+            shapeRenderer.setColor( color.r, color.g, color.b, 0.15f );
+        }
+        else
+        {
+            shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, 0.3f );
+        }
+
+        shapeRenderer.circle(
+                bodyData.getPosition().x, bodyData.getPosition().y, bodyData.getReach() );
+
+        shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
     }
 }

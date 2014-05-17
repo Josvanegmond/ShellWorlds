@@ -61,7 +61,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         bodyObjectList = new ArrayList<BodyObject>();
 
-        BodyObject star = new BodyObject( gameThread, "star", 0.001f, 20f + (float)(Math.random() * 10f), false );
+        BodyObject star = new BodyObject( gameThread, "star", 0.001f, 20f + (float)(Math.random() * 10f), 0, false );
         bodyObjectList.add( star );
 
         String[] planets = { "brown-planet", "blue-planet", "purple-planet" };
@@ -69,8 +69,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         float minDistance = 6000;
         for( int i = 0; i < 10; i++ )
         {
-            minDistance += 2000f + ((float)Math.random() * 5000f) * ((float) Math.random() * 5f);
-            BodyObject planet = new BodyObject( gameThread, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 5f + 5f, ((int)(Math.random()*2)==0)?true:false );
+            minDistance += 2000f + (5000f * (int)( Math.random() * 3f ) ) + (float) Math.random() * 500f;
+            BodyObject planet = new BodyObject( gameThread, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 2f + 2f, 15000, ((int)(Math.random()*2)==0)?true:false );
             bodyObjectList.add( planet );
         }
 
@@ -95,7 +95,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         generator.dispose(); // don't forget to dispose to avoid memory leaks!
 
-        background = new DefaultSprite( "background2.png" );
+        background = new DefaultSprite( "background3.png" );
         marker = new DefaultSprite( "marker.png" );
     }
 
@@ -110,6 +110,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     {
         Gdx.gl.glClearColor( 0, 0, 0, 1 );
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        //TODO: this should go to different thread but causes jittering
+        this.run( gameThread );
+
 
         camera.update();
 
@@ -153,9 +157,9 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
             batch.setProjectionMatrix(normalProjection);
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ));
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 1000f, bodyData.getPosition().y, 0 ));
             alienFont.setColor(bodyData.getSelectedOrbitColor());
-            alienFont.draw(batch, bodyData.getName(), viewPosition.x + 50f, viewPosition.y);
+            alienFont.draw(batch, bodyData.getName(), viewPosition.x, viewPosition.y);
         }
 
         //draw planet info at cursor
@@ -163,12 +167,12 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         {
             BodyData bodyData = this.touchedBody.getData();
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ));
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 1000f, bodyData.getPosition().y, 0 ));
             normalFont.setColor(bodyData.getSelectedOrbitColor());
-            normalFont.draw(batch, bodyData.readMassInfo(), viewPosition.x + 66f, viewPosition.y - 16f);
-            normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x + 66f, viewPosition.y - 32f);
-            normalFont.draw(batch, bodyData.readAtmosphereInfo(), viewPosition.x + 66f, viewPosition.y - 48f);
-            normalFont.draw(batch, bodyData.readDiversityInfo(), viewPosition.x + 66f, viewPosition.y - 64f);
+            normalFont.draw(batch, bodyData.readMassInfo(), viewPosition.x, viewPosition.y - 16f);
+            normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x, viewPosition.y - 32f);
+            normalFont.draw(batch, bodyData.readAtmosphereInfo(), viewPosition.x, viewPosition.y - 48f);
+            normalFont.draw(batch, bodyData.readDiversityInfo(), viewPosition.x, viewPosition.y - 64f);
         }
 
         //draw marker
@@ -391,7 +395,6 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     public void run(GameThread gameThread)
     {
         for (BodyObject bodyObject : bodyObjectList) {
-            bodyObject.run( gameThread );
 
             //TODO: this should go to different thread but causes jittering
             bodyObject.run( gameThread );

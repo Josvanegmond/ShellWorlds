@@ -21,20 +21,22 @@ public class BodyData extends GameObject2DData
     private float size;
     private boolean shell;
     private boolean highlighted;
+    private float reach;
 
     private float mass;
     private float density;
     private float atmosphere;
     private float diversity;
 
-    public BodyData( float distance, float size, float width )
+    public BodyData( float distance, float size, float width, float reach )
     {
         super( 0, 0, width, width );
 
-        this.angle = (float)(Math.random() * Math.PI*2);
+        this.reach = reach;
+        this.angle = (float)(Math.random() * Math.PI*2f);
         this.distance = distance;
         this.size = size;
-        this.velocity = 33 / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
+        this.velocity = 33f / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
 
         this.mass = (float)Math.random() * 0.8f + 0.2f;
         this.density = (float)Math.random() * 0.9f + 0.1f;
@@ -51,7 +53,7 @@ public class BodyData extends GameObject2DData
 
         Color color = new Color();
         ColorMath.xform(color, 0.2f, ColorMath.ColorC.LUMINANCE, true);
-        ColorMath.xform( color, 0.6f, ColorMath.ColorC.SATURATION, true );
+        ColorMath.xform( color, 1f, ColorMath.ColorC.SATURATION, true );
         ColorMath.xform( color, (float)Math.random(), ColorMath.ColorC.HUE, true );
         color.a = 1f;
 
@@ -135,4 +137,9 @@ public class BodyData extends GameObject2DData
     public String readDiversityInfo() {
         return "Diversity variable: " + (this.diversity + 10);
     }
+
+    public float getReach() {
+        return reach;
+    }
+
 }
