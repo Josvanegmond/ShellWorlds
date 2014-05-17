@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 
 import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.graphics.StackedSprite;
@@ -16,6 +17,7 @@ public class BodyView extends StackedSprite
 {
     private BodyData bodyData;
     private boolean shell;
+    private float flashAlpha = (float)Math.random() * 10f;
 
     public BodyView( String planetImage )
     {
@@ -56,13 +58,22 @@ public class BodyView extends StackedSprite
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        Gdx.gl.glLineWidth(1.8f);
+
+        flashAlpha = (flashAlpha + 1) % 20;
+        shapeRenderer.setColor( 1f, 1f, 1f, (float)Math.random() );
+        for( BodyObject bodyObject : this.bodyData.getReachableBodies() ) {
+            BodyData bodyData = bodyObject.getData();
+            Vector2 displace = new Vector2( (float)Math.random() * 100, (float)Math.random() * 100 );
+            shapeRenderer.line( this.bodyData.getPosition().add(displace), bodyData.getPosition().add(displace) );
+        }
 
         if( bodyData.isHighlighted() == false ) {
-            shapeRenderer.setColor( color.r, color.g, color.b, 0.5f );
+            shapeRenderer.setColor( color.r, color.g, color.b, 0.3f );
         }
         else
         {
-            shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, 1f );
+            shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, .7f );
         }
 
         shapeRenderer.circle(0, 0, bodyData.getDistance());
@@ -73,11 +84,10 @@ public class BodyView extends StackedSprite
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         if( bodyData.isHighlighted() == false ) {
-            shapeRenderer.setColor( color.r, color.g, color.b, 0.15f );
+            shapeRenderer.setColor( color.r, color.g, color.b, 0.1f );
         }
         else
         {

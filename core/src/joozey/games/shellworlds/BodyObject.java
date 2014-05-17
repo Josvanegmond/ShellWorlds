@@ -12,12 +12,12 @@ public class BodyObject extends GameObject2D
     private BodyData bodyData;
     private BodyView bodyView;
 
-    public BodyObject( GameThread gameThread, String planetImage, float distance, float size, float reach, boolean shell )
+    public BodyObject( GameThread gameThread, BodyData.BodyType type, String planetImage, float distance, float size, float reach, boolean shell )
     {
         super( gameThread );
 
         bodyView = new BodyView( planetImage );
-        bodyData = new BodyData( distance, size, bodyView.getWidth(), reach );
+        bodyData = new BodyData( type, distance, size, bodyView.getWidth(), reach );
         bodyData.setShell( shell );
         bodyView.setScale( bodyData.getBodySize(), bodyData.getBodySize() );
         bodyView.setData( bodyData );
@@ -42,5 +42,4 @@ public class BodyObject extends GameObject2D
 
         super.run( gameThread );
     }
-
 }

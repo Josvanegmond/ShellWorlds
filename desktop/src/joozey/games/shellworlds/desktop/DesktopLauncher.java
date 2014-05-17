@@ -7,6 +7,7 @@ import joozey.games.shellworlds.ShellWorlds;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+        config.samples = 2;
 		new LwjglApplication(new ShellWorlds(), config);
 	}
 }

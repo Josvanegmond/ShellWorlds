@@ -2,6 +2,7 @@ package joozey.games.shellworlds;
 
 import com.badlogic.gdx.graphics.Color;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import joozey.libs.powerup.graphics.ColorMath;
@@ -12,6 +13,11 @@ import joozey.libs.powerup.object.GameObject2DData;
  */
 public class BodyData extends GameObject2DData
 {
+    public static enum BodyType
+    {
+        PLANET, STAR
+    };
+
     private float angle = 0f;
     private float distance;
     private Color orbitColor;
@@ -22,16 +28,20 @@ public class BodyData extends GameObject2DData
     private boolean shell;
     private boolean highlighted;
     private float reach;
+    private ArrayList<BodyObject> reachableBodyList;
+    private BodyType bodyType;
 
     private float mass;
     private float density;
     private float atmosphere;
     private float diversity;
 
-    public BodyData( float distance, float size, float width, float reach )
+    public BodyData( BodyType bodyType, float distance, float size, float width, float reach )
     {
         super( 0, 0, width, width );
 
+        this.reachableBodyList = new ArrayList<BodyObject>();
+        this.bodyType = bodyType;
         this.reach = reach;
         this.angle = (float)(Math.random() * Math.PI*2f);
         this.distance = distance;
@@ -140,6 +150,23 @@ public class BodyData extends GameObject2DData
 
     public float getReach() {
         return reach;
+    }
+
+    public void addReachableBody( BodyObject bodyObject ) {
+        this.reachableBodyList.add( bodyObject );
+    }
+
+    public void removeReachableBody( BodyObject bodyObject ) {
+        this.reachableBodyList.remove(bodyObject);
+    }
+
+    public ArrayList<BodyObject> getReachableBodies()
+    {
+        return this.reachableBodyList;
+    }
+
+    public BodyType getType() {
+        return bodyType;
     }
 
 }

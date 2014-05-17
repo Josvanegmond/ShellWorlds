@@ -61,7 +61,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         bodyObjectList = new ArrayList<BodyObject>();
 
-        BodyObject star = new BodyObject( gameThread, "star", 0.001f, 20f + (float)(Math.random() * 10f), 0, false );
+        BodyObject star = new BodyObject( gameThread, BodyData.BodyType.STAR, "star", 0.001f, 20f + (float)(Math.random() * 10f), 0, false );
         bodyObjectList.add( star );
 
         String[] planets = { "brown-planet", "blue-planet", "purple-planet" };
@@ -70,7 +70,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         for( int i = 0; i < 10; i++ )
         {
             minDistance += 2000f + (5000f * (int)( Math.random() * 3f ) ) + (float) Math.random() * 500f;
-            BodyObject planet = new BodyObject( gameThread, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 2f + 2f, 15000, ((int)(Math.random()*2)==0)?true:false );
+            BodyObject planet = new BodyObject( gameThread, BodyData.BodyType.PLANET, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 2f + 2f, 15000, ((int)(Math.random()*2)==0)?true:false );
             bodyObjectList.add( planet );
         }
 
@@ -108,11 +108,11 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public void render()
     {
-        Gdx.gl.glClearColor( 0, 0, 0, 1 );
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         //TODO: this should go to different thread but causes jittering
-        this.run( gameThread );
+        this.run(gameThread);
 
 
         camera.update();
@@ -124,7 +124,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         float scale = 0.75f;
         float ratio = (float)Gdx.graphics.getHeight() / (float)Gdx.graphics.getWidth();
         Matrix4 normalProjection = new Matrix4().setToOrtho2D( background.getWidth()/2f * (1f-scale), background.getHeight()/2f * (1f-scale * ratio), background.getWidth() * scale, background.getHeight() * scale * ratio );
-        normalProjection.translate( camera.position.cpy().scl(-0.001f) );
+        normalProjection.translate( camera.position.cpy().scl(-0.002f) );
         batch.setProjectionMatrix(normalProjection);
 
         background.draw( BatchManager.DrawType.BATCH );
@@ -173,6 +173,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x, viewPosition.y - 32f);
             normalFont.draw(batch, bodyData.readAtmosphereInfo(), viewPosition.x, viewPosition.y - 48f);
             normalFont.draw(batch, bodyData.readDiversityInfo(), viewPosition.x, viewPosition.y - 64f);
+            normalFont.draw(batch, "Planets in reach: " + bodyData.getReachableBodies().size(), viewPosition.x, viewPosition.y - 80f);
         }
 
         //draw marker
@@ -186,11 +187,11 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
 
 
-    public BodyObject getBodyOnPosition( Vector3 worldPosition )
+    public BodyObject getBodyOnPosition( Vector3 worldPosition, int range )
     {
         for( BodyObject bodyObject : bodyObjectList)
         {
-            if( isBodyOnPosition( bodyObject, worldPosition ) == true )
+            if( isBodyOnPosition( bodyObject, worldPosition, range ) == true )
             {
                 return bodyObject;
             }
@@ -199,10 +200,21 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         return null;
     }
 
-    public boolean isBodyOnPosition( BodyObject bodyObject, Vector3 worldPosition )
+    public boolean isBodyOnPosition( BodyObject bodyObject, Vector3 worldPosition, int range )
     {
         BodyData bodyData = bodyObject.getData();
-        if( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ).dst( worldPosition ) < 5000 )
+        if( new Vector3( bodyData.getPosition().x, bodyData.getPosition().y, 0 ).dst( worldPosition ) < range )
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isBodyOnPosition( BodyObject bodyObject, BodyObject bodyObject2, int range )
+    {
+        BodyData bodyData = bodyObject.getData();
+        if( bodyData.getPosition().dst( bodyObject2.getData().getPosition() ) < range )
         {
             return true;
         }
@@ -211,12 +223,12 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     }
 
 
-    public BodyObject getBodyOnDistance( Vector3 worldPosition )
+    public BodyObject getBodyOnDistance( Vector3 worldPosition, int range )
     {
         for( BodyObject bodyObject : bodyObjectList)
         {
             BodyData bodyData = bodyObject.getData();
-            if( Math.abs( bodyData.getPosition().len() - worldPosition.len() ) < 2000 )
+            if( Math.abs( bodyData.getPosition().len() - worldPosition.len() ) < range )
             {
                 return bodyObject;
             }
@@ -303,10 +315,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             //camera.rotateAround( new Vector3( followBody.getX(), followBody.getY(), 0 ), new Vector3(1,0,0), (prevScreen.x - screenX));
 
             Vector3 screenCenter = new Vector3( Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2, 0 );
-            this.touchedBodyOrbit = getBodyOnDistance( this.camera.unproject( screenCenter ) );
+            this.touchedBodyOrbit = getBodyOnDistance( this.camera.unproject( screenCenter ), 2000 );
 
             if( touchedBodyOrbit != null ) {
-                if (isBodyOnPosition( this.touchedBodyOrbit, screenCenter ) == true) {
+                if (isBodyOnPosition( this.touchedBodyOrbit, screenCenter, 5000 ) == true) {
                     this.touchedBody = this.touchedBodyOrbit;
                 }
             }
@@ -403,6 +415,25 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
                 bodyObject.getData().setHighlighted(true);
             } else {
                 bodyObject.getData().setHighlighted(false);
+            }
+        }
+
+        for (BodyObject bodyObject : bodyObjectList)
+        {
+            for (BodyObject bodyObject2 : bodyObjectList) {
+                if (bodyObject != bodyObject2 &&
+                    bodyObject2.getData().getType() != BodyData.BodyType.STAR)
+                {
+                    if (isBodyOnPosition(bodyObject, bodyObject2, (int) bodyObject.getData().getReach()))
+                    {
+                        if( bodyObject.getData().getReachableBodies().contains( bodyObject2 ) == false ) {
+                            bodyObject.getData().addReachableBody(bodyObject2);
+                        }
+                    }
+                    else {
+                        bodyObject.getData().removeReachableBody(bodyObject2);
+                    }
+                }
             }
         }
 
