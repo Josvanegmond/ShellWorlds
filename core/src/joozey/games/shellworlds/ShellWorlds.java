@@ -7,7 +7,9 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -38,6 +40,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     private BitmapFont alienFont, normalFont;
     private DefaultSprite background;
     private DefaultSprite marker;
+    private NinePatch infoDisplay;
+    private boolean showDetailedInfo;
 
     private GameThread gameThread;
 
@@ -77,6 +81,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         followBodyObject = bodyObjectList.get(0);
 
         camera = new OrthographicCamera( GameData.getWidth(), GameData.getHeight() );
+        camera.zoom = 1f;
         batch = BatchManager.getSpriteBatch();
 
         shapeRenderer = BatchManager.getShapeRenderer();
@@ -95,8 +100,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         generator.dispose(); // don't forget to dispose to avoid memory leaks!
 
-        background = new DefaultSprite( "background3.png" );
+        background = new DefaultSprite( "background4.png" );
         marker = new DefaultSprite( "marker.png" );
+        marker.setAlpha( 1f - 1f/camera.zoom );
+        infoDisplay = new NinePatch( new Texture( "data/dialog-frame.png" ), 7, 7, 7, 7 );
     }
 
     @Override
@@ -157,26 +164,38 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
             batch.setProjectionMatrix(normalProjection);
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 250f, bodyData.getPosition().y, 0 ));
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x - 200f, bodyData.getPosition().y + 200f, 0 ));
             alienFont.setColor(bodyData.getSelectedOrbitColor());
             alienFont.draw(batch, bodyData.getName(), viewPosition.x, viewPosition.y);
         }
 
+
         //draw planet info at cursor
+
+        infoDisplay.draw( BatchManager.getSpriteBatch(), 10, GameData.getHeight() - 90, GameData.getWidth() / 2 - 20, 80 );
+
         if( this.touchedBody != null )
         {
             BodyData bodyData = this.touchedBody.getData();
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 250f, bodyData.getPosition().y, 0 ));
+            Vector3 viewPosition = new Vector3( 20, GameData.getHeight() - 20, 0 );//camera.project( new Vector3( bodyData.getPosition().x + 250f, bodyData.getPosition().y, 0 ));
             normalFont.setColor(bodyData.getSelectedOrbitColor());
-            normalFont.draw(batch, bodyData.readMassInfo(), viewPosition.x, viewPosition.y - 16f);
-            normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x, viewPosition.y - 32f);
-            normalFont.draw(batch, bodyData.readAtmosphereInfo(), viewPosition.x, viewPosition.y - 48f);
-            normalFont.draw(batch, bodyData.readDiversityInfo(), viewPosition.x, viewPosition.y - 64f);
-            normalFont.draw(batch, "Planets in reach: " + bodyData.getReachableBodies().size(), viewPosition.x, viewPosition.y - 80f);
+            normalFont.draw(batch, bodyData.readMassInfo(), viewPosition.x, viewPosition.y);
+            normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x, viewPosition.y - 16f);
+            normalFont.draw(batch, bodyData.readAtmosphereInfo(), viewPosition.x, viewPosition.y - 32f);
+            normalFont.draw(batch, bodyData.readDiversityInfo(), viewPosition.x, viewPosition.y - 48f);
+
+            if( showDetailedInfo == true )
+            {
+                normalFont.draw( batch, bodyData.readBuildingProject(), GameData.getWidth() * 5f/7f, GameData.getHeight() / 2 + 96f );
+                normalFont.draw( batch, bodyData.readBuildingProgress(), GameData.getWidth() * 5f/7f, GameData.getHeight() / 2 + 80f );
+            }
+
+            batch.draw( this.touchedBody.getSprite(), 210, GameData.getHeight() - 84, 80, 80 );
         }
 
         //draw marker
+        marker.setAlpha( Math.min( camera.zoom/100f, 1f ) );
         marker.setPosition( Gdx.graphics.getWidth()/2f - marker.getWidth()/2f, Gdx.graphics.getHeight()/2f - marker.getHeight()/2f );
         marker.draw( BatchManager.DrawType.BATCH );
 
@@ -340,9 +359,16 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     @Override
     public boolean scrolled( int scrollAmount )
     {
-        this.camera.zoom += 20f * scrollAmount * this.camera.zoom / (3f * this.camera.zoom);
-        this.camera.zoom = Math.max( this.camera.zoom, 2f );
+        this.doScroll( 20f * scrollAmount * this.camera.zoom / (3f * this.camera.zoom) );
         return false;
+    }
+
+    public void doScroll( float amount )
+    {
+        this.camera.zoom += amount;
+        this.camera.zoom = Math.max( this.camera.zoom, 2f );
+
+        showDetailedInfo = ( this.camera.zoom == 2f ) ? true : false;
     }
 
 
@@ -389,12 +415,10 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     public boolean zoom(float initialDistance, float distance)
     {
         //Calculate pinch to zoom
-        float difference = (initialDistance - distance)/50f;
+        float difference = (initialDistance - distance)/30f;
         difference = Math.min( Math.max( difference, -1f ), 1f );
 
-        camera.zoom += difference;
-        camera.zoom = Math.max( camera.zoom, 2f );
-
+        doScroll( difference );
         return false;
     }
 
@@ -440,7 +464,16 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         if( camera != null ) {
             if (followBodyObject != null) {
                 Vector2 position = followBodyObject.getData().getPosition();
-                camera.position.set(position.x, position.y, 0f);
+                Vector3 position3d = new Vector3( position.x, position.y, 0 );
+
+                camera.translate(
+                    (position.x - camera.position.x)*.2f,
+                    (position.y - camera.position.y)*.2f, 0f);
+
+                if( camera.position.dst( position3d ) < 1500 )
+                {
+                    camera.position.set( position3d );
+                }
             }
         }
     }

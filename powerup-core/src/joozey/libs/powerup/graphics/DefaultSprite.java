@@ -6,16 +6,27 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 import joozey.libs.powerup.object.BatchManager;
-import joozey.libs.powerup.util.DefaultColors;
 import joozey.libs.powerup.object.BatchManager.DrawType;
+import joozey.libs.powerup.util.DefaultColors;
 
 public class DefaultSprite extends Sprite
 {
+    public static Texture stringToTexture( String bitmapName )
+    {
+        Texture texture = new Texture(Gdx.files.internal("data/" + bitmapName));
+
+        if( bitmapName.contains(".9.") ) {
+            new NinePatch( texture );
+        }
+        return texture;
+    }
+
 	private float offsetX, offsetY;
 	private float x, y;
 	private String bitmapName;
@@ -27,7 +38,7 @@ public class DefaultSprite extends Sprite
 
     public DefaultSprite( String bitmapName )
 	{
-		super( new Texture( Gdx.files.internal( "data/" + bitmapName ) ) );
+        super( stringToTexture( bitmapName ) );
 
 		this.bitmapName = bitmapName;
 		setDefaultValues();
@@ -87,21 +98,21 @@ public class DefaultSprite extends Sprite
         }
     }
 
-	@Override
-	public final void draw( Batch batch )
-	{
-		super.setPosition( this.x + this.offsetX, this.y + this.offsetY );
-		
-		Color color = super.getColor();
-		float oldAlpha = color.a;
-		color.a *= alpha;
+    @Override
+    public final void draw( Batch batch )
+    {
+        super.setPosition( this.x + this.offsetX, this.y + this.offsetY );
 
-		super.setColor(color);
-		super.draw( batch );
+        Color color = super.getColor();
+        float oldAlpha = color.a;
+        color.a *= alpha;
 
-		color.a = oldAlpha;
-		super.setColor(color);
-	}
+        super.setColor(color);
+        super.draw( batch );
+
+        color.a = oldAlpha;
+        super.setColor(color);
+    }
 
 	protected void drawBatch()
 	{
@@ -115,6 +126,11 @@ public class DefaultSprite extends Sprite
 		this.x = x;
 		this.y = y;
 	}
+
+    public Vector2 getPosition()
+    {
+        return new Vector2( this.x, this.y );
+    }
 
 	public void dispose()
 	{

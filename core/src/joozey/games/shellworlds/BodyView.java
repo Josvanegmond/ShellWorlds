@@ -17,7 +17,6 @@ public class BodyView extends StackedSprite
 {
     private BodyData bodyData;
     private boolean shell;
-    private float flashAlpha = (float)Math.random() * 10f;
 
     public BodyView( String planetImage )
     {
@@ -60,8 +59,7 @@ public class BodyView extends StackedSprite
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glLineWidth(1.8f);
 
-        flashAlpha = (flashAlpha + 1) % 20;
-        shapeRenderer.setColor( 1f, 1f, 1f, (float)Math.random() );
+        shapeRenderer.setColor( 1f, 1f, 1f, (float)Math.random()/3f + .3f );
         for( BodyObject bodyObject : this.bodyData.getReachableBodies() ) {
             BodyData bodyData = bodyObject.getData();
             Vector2 displace = new Vector2( (float)Math.random() * 20, (float)Math.random() * 20 );
@@ -73,7 +71,7 @@ public class BodyView extends StackedSprite
         }
         else
         {
-            shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, .7f );
+            shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, .5f );
         }
 
         shapeRenderer.circle(0, 0, bodyData.getDistance());
@@ -97,7 +95,7 @@ public class BodyView extends StackedSprite
         }
         else
         {
-            shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, 0.3f );
+            shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, 0.2f );
         }
 
         shapeRenderer.circle(

@@ -61,6 +61,7 @@ public abstract class GameObject2D extends GameObject implements GameDrawable
 		this.data.setDestroyed();
 	}
 
+
     public final void draw( BatchManager.DrawType drawType )
     {
         this.sprite.draw(drawType);

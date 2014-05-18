@@ -56,7 +56,7 @@ public class BodyData extends GameObject2DData
 
         Random r = new Random();
         this.name = "";
-        int chars = (int)(Math.random() * 4) + 4;
+        int chars = 3;//(int)(Math.random() * 4) + 4;
         for( int i = 0; i < chars; i++ )
         {
             name += (char)(r.nextInt(26) + 'a');
@@ -179,5 +179,13 @@ public class BodyData extends GameObject2DData
     {
         this.buildProgress += progress;
         this.buildProgress %= 100;
+    }
+
+    public CharSequence readBuildingProject() {
+        return "Constructing Shellworld";
+    }
+
+    public CharSequence readBuildingProgress() {
+        return (int)this.buildProgress + "% COMPLETED";
     }
 }

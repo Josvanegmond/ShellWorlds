@@ -2,6 +2,7 @@ package joozey.games.shellworlds;
 
 import joozey.libs.powerup.control.GameThread;
 import joozey.libs.powerup.game.GameData;
+import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.object.GameObject2D;
 
 /**
@@ -41,5 +42,9 @@ public class BodyObject extends GameObject2D
         );
 
         super.run( gameThread );
+    }
+
+    public DefaultSprite getSprite() {
+        return bodyView;
     }
 }
