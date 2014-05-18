@@ -68,7 +68,7 @@ public class DefaultSprite extends Sprite
 	private void setDefaultValues()
 	{
 		Texture texture = this.getTexture();
-		texture.setFilter( TextureFilter.Nearest, TextureFilter.Nearest );
+		texture.setFilter( TextureFilter.Nearest, TextureFilter.Linear );
 
 		// set size to match aspect ratio of view
 		this.setSize( texture.getWidth(), texture.getHeight() );

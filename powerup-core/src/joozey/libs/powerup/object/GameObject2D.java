@@ -80,7 +80,7 @@ public abstract class GameObject2D extends GameObject implements GameDrawable
 		Vector2 offset = data.getOffset();
 		Vector2 size = data.getSize();
 		
-		this.sprite.setPosition( position.x - offset.x, position.y - offset.y );
+		this.sprite.setPosition( position.x - size.x/2, position.y - size.y/2 );
 		this.sprite.setSize(size.x, size.y);
 	}
 

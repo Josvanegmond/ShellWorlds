@@ -30,6 +30,7 @@ public class BodyData extends GameObject2DData
     private float reach;
     private ArrayList<BodyObject> reachableBodyList;
     private BodyType bodyType;
+    private float buildProgress;
 
     private float mass;
     private float density;
@@ -46,7 +47,7 @@ public class BodyData extends GameObject2DData
         this.angle = (float)(Math.random() * Math.PI*2f);
         this.distance = distance;
         this.size = size;
-        this.velocity = 33f / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
+        this.velocity = 4 * 33f / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
 
         this.mass = (float)Math.random() * 0.8f + 0.2f;
         this.density = (float)Math.random() * 0.9f + 0.1f;
@@ -169,4 +170,14 @@ public class BodyData extends GameObject2DData
         return bodyType;
     }
 
+    public float getBuildingProgress()
+    {
+        return this.buildProgress;
+    }
+
+    public void addBuildingProgress( float progress )
+    {
+        this.buildProgress += progress;
+        this.buildProgress %= 100;
+    }
 }

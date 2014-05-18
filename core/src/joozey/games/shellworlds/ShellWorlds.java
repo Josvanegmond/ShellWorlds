@@ -70,7 +70,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         for( int i = 0; i < 10; i++ )
         {
             minDistance += 2000f + (5000f * (int)( Math.random() * 3f ) ) + (float) Math.random() * 500f;
-            BodyObject planet = new BodyObject( gameThread, BodyData.BodyType.PLANET, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 2f + 2f, 15000, ((int)(Math.random()*2)==0)?true:false );
+            BodyObject planet = new BodyObject( gameThread, BodyData.BodyType.PLANET, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 0f + 1f, 15000, true );// ((int)(Math.random()*2)==0)?true:false );
             bodyObjectList.add( planet );
         }
 
@@ -157,7 +157,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
             normalProjection = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),  Gdx.graphics.getHeight());
             batch.setProjectionMatrix(normalProjection);
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 1000f, bodyData.getPosition().y, 0 ));
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 250f, bodyData.getPosition().y, 0 ));
             alienFont.setColor(bodyData.getSelectedOrbitColor());
             alienFont.draw(batch, bodyData.getName(), viewPosition.x, viewPosition.y);
         }
@@ -167,7 +167,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         {
             BodyData bodyData = this.touchedBody.getData();
 
-            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 1000f, bodyData.getPosition().y, 0 ));
+            Vector3 viewPosition = camera.project( new Vector3( bodyData.getPosition().x + 250f, bodyData.getPosition().y, 0 ));
             normalFont.setColor(bodyData.getSelectedOrbitColor());
             normalFont.draw(batch, bodyData.readMassInfo(), viewPosition.x, viewPosition.y - 16f);
             normalFont.draw(batch, bodyData.readDensityInfo(), viewPosition.x, viewPosition.y - 32f);
@@ -390,7 +390,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
     {
         //Calculate pinch to zoom
         float difference = (initialDistance - distance)/50f;
-        difference = Math.min( Math.max( difference, -0.1f ), 0.1f );
+        difference = Math.min( Math.max( difference, -1f ), 1f );
 
         camera.zoom += difference;
         camera.zoom = Math.max( camera.zoom, 2f );

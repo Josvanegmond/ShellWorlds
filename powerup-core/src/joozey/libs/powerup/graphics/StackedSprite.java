@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
 
 import java.util.Stack;
 
@@ -26,7 +25,7 @@ public class StackedSprite extends DefaultSprite
 	{
 		super( sprite );
 		this.spriteStack = new Stack<DefaultSprite>();
-
+        sprite.setOffset( offsetX, offsetY );
 		this.setOffset( offsetX, offsetY );
 	}
 	
@@ -57,10 +56,10 @@ public class StackedSprite extends DefaultSprite
         {
             if( sprite != this )
             {
-                Vector2 origOffset = sprite.getOffset();
-                sprite.setOffset( origOffset.x + this.offsetX, origOffset.y + this.offsetY );
+                //Vector2 origOffset = sprite.getOffset();
+                //sprite.setOffset( origOffset.x + this.offsetX, origOffset.y + this.offsetY );
                 sprite.draw( drawType );
-                sprite.setOffset( origOffset.x, origOffset.y );
+                //sprite.setOffset( origOffset.x, origOffset.y );
             }
         }
     }
@@ -119,7 +118,7 @@ public class StackedSprite extends DefaultSprite
 		this.offsetY = y;
 	}
 	
-	public void addSprite( DefaultSprite sprite, int offsetX, int offsetY )
+	public void addSprite( DefaultSprite sprite, float offsetX, float offsetY )
 	{
 		sprite.setOffset( offsetX, offsetY );
 		this.spriteStack.push( sprite );
