@@ -1,4 +1,4 @@
-package joozey.games.shellworlds;
+package joozey.games.shellworlds.core;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -18,28 +18,27 @@ public class BodyData extends GameObject2DData
         PLANET, STAR
     };
 
-    private float angle = 0f;
-    private float distance;
+    private double angle = 0.;
+    private double distance;
     private Color orbitColor;
     private Color selectedOrbitColor;
     private String name;
-    private float velocity;
-    private float size;
-    private boolean shell;
+    private double velocity;
+    private double size;
     private boolean highlighted;
-    private float reach;
+    private double reach;
     private ArrayList<BodyObject> reachableBodyList;
     private BodyType bodyType;
-    private float buildProgress;
+    private double buildProgress;
 
     private float mass;
     private float density;
     private float atmosphere;
     private float diversity;
 
-    public BodyData( BodyType bodyType, float distance, float size, float width, float reach )
+    public BodyData( BodyType bodyType, float distance, float size, float reach )
     {
-        super( 0, 0, width, width );
+        super( 0, 0, size, size );
 
         this.reachableBodyList = new ArrayList<BodyObject>();
         this.bodyType = bodyType;
@@ -71,16 +70,6 @@ public class BodyData extends GameObject2DData
         this.orbitColor = color;
         this.selectedOrbitColor = ColorMath.xform( color, 0.5f, ColorMath.ColorC.LUMINANCE, false );
     }
-
-    public boolean hasShell()
-    {
-        return this.shell;
-    }
-    public void setShell( boolean on )
-    {
-        this.shell = on;
-    }
-
     public boolean isHighlighted() { return this.highlighted; }
     public void setHighlighted( boolean on ) { this.highlighted = on; }
 
@@ -99,20 +88,20 @@ public class BodyData extends GameObject2DData
         return this.selectedOrbitColor;
     }
 
-    public float getDistance()
+    public double getDistance()
     {
         return this.distance;
     }
 
-    public float getAngle() { return this.angle; }
-    public void addAngle( float amount ) { this.angle += amount/(Math.PI*2); }
+    public double getAngle() { return this.angle; }
+    public void addAngle( double amount ) { this.angle += amount/(Math.PI*2); }
 
-    public float getVelocity()
+    public double getVelocity()
     {
         return this.velocity;
     }
 
-    public float getBodySize()
+    public double getBodySize()
     {
         return this.size;
     }
@@ -149,7 +138,7 @@ public class BodyData extends GameObject2DData
         return "Diversity variable: " + (this.diversity + 10);
     }
 
-    public float getReach() {
+    public double getReach() {
         return reach;
     }
 
@@ -170,7 +159,7 @@ public class BodyData extends GameObject2DData
         return bodyType;
     }
 
-    public float getBuildingProgress()
+    public double getBuildingProgress()
     {
         return this.buildProgress;
     }

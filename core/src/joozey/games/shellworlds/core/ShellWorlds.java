@@ -1,4 +1,4 @@
-package joozey.games.shellworlds;
+package joozey.games.shellworlds.core;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Game;
@@ -60,12 +60,11 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
         GameData gameData = new GameData( 0, 0 );
         gameThread = new GameThread( gameData );
-        //gameThread.register( this );
-        //TODO: separating planet movement to different thread will cause jittering with camera following objects
+        gameThread.register( this );
 
         bodyObjectList = new ArrayList<BodyObject>();
 
-        BodyObject star = new BodyObject( gameThread, BodyData.BodyType.STAR, "star", 0.001f, 20f + (float)(Math.random() * 10f), 0, false );
+        BodyObject star = new BodyObject( gameThread, BodyData.BodyType.STAR, "star", 0.001f, 12f + (float)(Math.random() * 4f), 0 );
         bodyObjectList.add( star );
 
         String[] planets = { "brown-planet", "blue-planet", "purple-planet" };
@@ -74,7 +73,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         for( int i = 0; i < 10; i++ )
         {
             minDistance += 2000f + (5000f * (int)( Math.random() * 3f ) ) + (float) Math.random() * 500f;
-            BodyObject planet = new BodyObject( gameThread, BodyData.BodyType.PLANET, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 0f + 1f, 15000, true );// ((int)(Math.random()*2)==0)?true:false );
+            BodyObject planet = new BodyObject( gameThread, BodyData.BodyType.PLANET, planets[(int)(Math.random()*planets.length)], minDistance, (float)Math.random() * 1f + 1f, 15000 );// ((int)(Math.random()*2)==0)?true:false );
             bodyObjectList.add( planet );
         }
 
@@ -118,12 +117,8 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        //TODO: this should go to different thread but causes jittering
-        this.run(gameThread);
-
-
+        this.update();
         camera.update();
-
 
         //drawing the backdrop
         batch.begin();
@@ -132,6 +127,7 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         float ratio = (float)Gdx.graphics.getHeight() / (float)Gdx.graphics.getWidth();
         Matrix4 normalProjection = new Matrix4().setToOrtho2D( background.getWidth()/2f * (1f-scale), background.getHeight()/2f * (1f-scale * ratio), background.getWidth() * scale, background.getHeight() * scale * ratio );
         normalProjection.translate( camera.position.cpy().scl(-0.002f) );
+
         batch.setProjectionMatrix(normalProjection);
 
         background.draw( BatchManager.DrawType.BATCH );
@@ -427,6 +423,37 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
         return false;
     }
 
+
+    public void update()
+    {
+        for (BodyObject bodyObject : bodyObjectList)
+        {
+            bodyObject.update();
+
+            if (bodyObject == touchedBodyOrbit) {
+                bodyObject.getData().setHighlighted(true);
+            } else {
+                bodyObject.getData().setHighlighted(false);
+            }
+        }
+
+        if( camera != null ) {
+            if (followBodyObject != null) {
+                Vector2 position = followBodyObject.getData().getPosition();
+                Vector3 position3d = new Vector3( position.x, position.y, 0 );
+
+                camera.translate(
+                        (position.x - camera.position.x)*.2f,
+                        (position.y - camera.position.y)*.2f, 0f);
+
+                if( camera.position.dst( position3d ) < 1500 )
+                {
+                    camera.position.set( position3d );
+                }
+            }
+        }
+    }
+
     @Override
     public void run(GameThread gameThread)
     {
@@ -434,12 +461,6 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
 
             //TODO: this should go to different thread but causes jittering
             bodyObject.run( gameThread );
-
-            if (bodyObject == touchedBodyOrbit) {
-                bodyObject.getData().setHighlighted(true);
-            } else {
-                bodyObject.getData().setHighlighted(false);
-            }
         }
 
         for (BodyObject bodyObject : bodyObjectList)
@@ -457,22 +478,6 @@ public class ShellWorlds extends Game implements GameRunnable, ApplicationListen
                     else {
                         bodyObject.getData().removeReachableBody(bodyObject2);
                     }
-                }
-            }
-        }
-
-        if( camera != null ) {
-            if (followBodyObject != null) {
-                Vector2 position = followBodyObject.getData().getPosition();
-                Vector3 position3d = new Vector3( position.x, position.y, 0 );
-
-                camera.translate(
-                    (position.x - camera.position.x)*.2f,
-                    (position.y - camera.position.y)*.2f, 0f);
-
-                if( camera.position.dst( position3d ) < 1500 )
-                {
-                    camera.position.set( position3d );
                 }
             }
         }

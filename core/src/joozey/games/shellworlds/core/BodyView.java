@@ -1,4 +1,4 @@
-package joozey.games.shellworlds;
+package joozey.games.shellworlds.core;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -16,7 +16,6 @@ import joozey.libs.powerup.object.BatchManager;
 public class BodyView extends StackedSprite
 {
     private BodyData bodyData;
-    private boolean shell;
 
     public BodyView( String planetImage )
     {
@@ -32,16 +31,16 @@ public class BodyView extends StackedSprite
     public void drawBatch()
     {
         if( this.bodyData != null ) {
-            if (this.bodyData.hasShell() != shell) {
-                this.shell = this.bodyData.hasShell();
-                if (this.shell == true) {
-                    this.addSprite(new DefaultSprite("shell.png"), 0, 0 );
-                    float scale = this.bodyData.getBodySize();
-                    this.setScale( scale, scale );
-                } else {
-                    this.removeSprite(0);
-                }
-            }
+//            if (this.bodyData.hasShell() != shell) {
+//                this.shell = this.bodyData.hasShell();
+//                if (this.shell == true) {
+//                    this.addSprite(new DefaultSprite("shell.png"), 0, 0 );
+//                    float scale = this.bodyData.getBodySize();
+//                    this.setScale( scale, scale );
+//                } else {
+//                    this.removeSprite(0);
+//                }
+//            }
 
             super.drawBatch();
         }
@@ -74,7 +73,7 @@ public class BodyView extends StackedSprite
             shapeRenderer.setColor( selectedColor.r, selectedColor.g, selectedColor.b, .5f );
         }
 
-        shapeRenderer.circle(0, 0, bodyData.getDistance());
+        shapeRenderer.circle(0, 0, (float)bodyData.getDistance());
 
         shapeRenderer.end();
 
@@ -86,7 +85,7 @@ public class BodyView extends StackedSprite
 
         shapeRenderer.setColor( color.r, color.g, color.b, .3f );
         shapeRenderer.arc(
-                bodyData.getPosition().x, bodyData.getPosition().y, bodyData.getSize().x + 20, 0, 360f + this.bodyData.getBuildingProgress() * 3.6f );
+                bodyData.getPosition().x, bodyData.getPosition().y, bodyData.getSize().x + 20, 0, 360f + (float)this.bodyData.getBuildingProgress() * 3.6f );
 
         this.bodyData.addBuildingProgress( .2f );
 
@@ -99,7 +98,7 @@ public class BodyView extends StackedSprite
         }
 
         shapeRenderer.circle(
-                bodyData.getPosition().x, bodyData.getPosition().y, bodyData.getReach() );
+                bodyData.getPosition().x, bodyData.getPosition().y, (float)bodyData.getReach() );
 
         shapeRenderer.end();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);

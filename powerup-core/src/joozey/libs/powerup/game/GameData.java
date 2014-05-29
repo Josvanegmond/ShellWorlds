@@ -86,9 +86,9 @@ public class GameData
 	}
 
 
-    public static float getSpeed()
+    public static double getSpeed()
     {
-        return 3f;
+        return 3.;
     }
 
     public static void setSpeed( float speed )

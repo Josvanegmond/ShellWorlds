@@ -5,9 +5,9 @@ import com.badlogic.gdx.math.Vector2;
 
 public class GameObject2DData
 {
-	protected float x, y;
-	protected float offsetX, offsetY;
-	protected float width, height;
+	protected double x, y;
+	protected double offsetX, offsetY;
+	protected double width, height;
 	private boolean destroyed;
 	
 	public GameObject2DData()
@@ -22,7 +22,7 @@ public class GameObject2DData
 		this.setSize( w, h );
 	}
 	
-	public void setPosition( float x, float y )
+	public void setPosition( double x, double y )
 	{
 		this.x = x;
 		this.y = y;
@@ -36,12 +36,12 @@ public class GameObject2DData
 	
 	public Vector2 getPosition()
 	{
-		return new Vector2( this.x, this.y );
+		return new Vector2( (float)this.x, (float)this.y );
 	}
 
 	public Vector2 getOffset()
 	{
-		return new Vector2( this.offsetX, this.offsetY );
+		return new Vector2( (float)this.offsetX, (float)this.offsetY );
 	}
 
 	public void setX( float x )
@@ -60,12 +60,12 @@ public class GameObject2DData
 		this.offsetY = y;
 	}
 	
-	public float getOffsetX()
+	public double getOffsetX()
 	{
 		return this.offsetX;
 	}
 	
-	public float getOffsetY()
+	public double getOffsetY()
 	{
 		return this.offsetY;
 	}
@@ -78,7 +78,7 @@ public class GameObject2DData
 
 	public Vector2 getSize()
 	{
-		return new Vector2( this.width, this.height );
+		return new Vector2( (float)this.width, (float)this.height );
 	}
 
 	
