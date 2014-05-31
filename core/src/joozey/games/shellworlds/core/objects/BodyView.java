@@ -1,4 +1,4 @@
-package joozey.games.shellworlds.core;
+package joozey.games.shellworlds.core.objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;

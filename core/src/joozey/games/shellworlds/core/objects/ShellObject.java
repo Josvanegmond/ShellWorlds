@@ -1,7 +1,5 @@
-package joozey.games.shellworlds.core;
+package joozey.games.shellworlds.core.objects;
 
-import joozey.libs.powerup.control.GameThread;
-import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.object.GameObject2D;
 
 import java.util.ArrayList;
@@ -32,10 +30,8 @@ public class ShellObject extends GameObject2D
 
     private BodyData bodyData;
 
-    public ShellObject(GameThread gameThread, BodyData bodyData, Type type)
+    public ShellObject(BodyData bodyData, Type type)
     {
-        super( gameThread );
-
         this.type = type;
         this.bodyData = bodyData;
         this.requestingShellObjects = new ArrayList<ShellObject>();
@@ -48,7 +44,7 @@ public class ShellObject extends GameObject2D
         return (1f+productionRate) * productionQuality;
     }
 
-    public void requestExport( ShellObject requestingShellObject)
+    public void requestExport( ShellObject requestingShellObject )
     {
         this.requestingShellObjects.add(requestingShellObject);
     }

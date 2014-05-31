@@ -1,4 +1,4 @@
-package joozey.games.shellworlds.core;
+package joozey.games.shellworlds.core.objects;
 
 import joozey.libs.powerup.graphics.DefaultSprite;
 

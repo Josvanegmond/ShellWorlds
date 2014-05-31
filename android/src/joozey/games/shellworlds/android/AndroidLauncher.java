@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import joozey.games.shellworlds.ShellWorlds;
+import joozey.games.shellworlds.core.ShellWorlds;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
@@ -12,6 +12,7 @@ public class AndroidLauncher extends AndroidApplication {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         //config.numSamples = 1;
-        initialize(new ShellWorlds(), config);
+        ShellWorlds shellWorlds = new ShellWorlds();
+        initialize( shellWorlds.getRenderThread(), config);
 	}
 }

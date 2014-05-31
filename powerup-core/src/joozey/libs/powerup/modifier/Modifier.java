@@ -24,5 +24,5 @@ public abstract class Modifier
 		return progress;
 	}
 	
-	public abstract void modify( GameObject2DData data, DefaultSprite sprite, float delta );
+	public abstract void modify( final GameObject2DData data, DefaultSprite sprite, float delta );
 }

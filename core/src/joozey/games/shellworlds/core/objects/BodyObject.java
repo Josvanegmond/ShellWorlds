@@ -1,6 +1,5 @@
-package joozey.games.shellworlds.core;
+package joozey.games.shellworlds.core.objects;
 
-import joozey.libs.powerup.control.GameThread;
 import joozey.libs.powerup.game.GameData;
 import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.object.GameObject2D;
@@ -14,15 +13,13 @@ public class BodyObject extends GameObject2D
     private BodyData bodyData;
     private BodyView bodyView;
 
-    public BodyObject( GameThread gameThread, BodyData.BodyType type, String planetImage, float distance, float size, float reach )
+    public BodyObject( BodyData.BodyType type, String planetImage, float distance, float size, float reach )
     {
-        super( gameThread );
-
         bodyView = new BodyView( planetImage );
         bodyData = new BodyData( type, distance, size * bodyView.getWidth(), reach );
         bodyView.setData( bodyData );
 
-        this.shellObject = new ShellObject( gameThread,  bodyData, ShellObject.Type.RESIDENTIAL );
+        this.shellObject = new ShellObject( bodyData, ShellObject.Type.RESIDENTIAL );
 
         super.init( bodyData, bodyView );
     }
@@ -34,10 +31,10 @@ public class BodyObject extends GameObject2D
     }
 
     @Override
-    public void run( GameThread gameThread )
+    public void run()
     {
         bodyData.addAngle( bodyData.getVelocity() * GameData.getSpeed() );
-        super.run( gameThread );
+        super.run();
     }
 
     @Override

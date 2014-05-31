@@ -1,76 +1,42 @@
 package joozey.libs.powerup.control;
 
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+
 import joozey.libs.powerup.game.GameData;
+import joozey.libs.powerup.graphics.DefaultAnimation;
 
-public class GameThread extends Thread
+/**
+ * Created by acer on 31-5-2014.
+ */
+public class GameThread implements Runnable
 {
-	private boolean keepRunning;
-	private Queue<GameRunnable> runnableQueue;
-	private GameData gameData;
+    private PriorityQueue<GameRunnable> queue;
 
-	public GameThread( GameData gameData )
-	{
-		this.runnableQueue = new LinkedList<GameRunnable>();
-		this.keepRunning = true;
-		this.gameData = gameData;
+    public GameThread()
+    {
+        this.queue = new PriorityQueue<GameRunnable>();
+    }
 
-		this.start();
-	}
-
-	public GameData getGameData()
-	{
-		return this.gameData;
-	}
-
-	public void register( GameRunnable runnable )
-	{
-		this.runnableQueue.add( runnable );
-	}
-
-	public void remove( GameRunnable runnable )
-	{
-		this.runnableQueue.remove( runnable );
-	}
-
-	public void requestStop()
-	{
-		this.keepRunning = false;
-	}
-
-	@Override
-	public void run()
-	{
-		while( this.keepRunning == true )
-		{
-            try
-			{
-				Queue<GameRunnable> runnableQueueClone = new LinkedList<GameRunnable>(
-						this.runnableQueue );
-
-                for( GameRunnable runnable : runnableQueueClone )
-				{
-					if( runnable.isInitialised() )
-					{
-						runnable.run( this );
-					}
-				}
-
-                Thread.sleep( 10 );
-			}
-
-			catch( InterruptedException e )
-			{
-				e.printStackTrace();
-			}
-
-            catch( Exception e )
-            {
-                e.printStackTrace();
+    @Override
+    public void run()
+    {
+        for (GameRunnable runnable : queue) {
+            if (runnable.isInitialised() == true) {
+                runnable.run();
             }
-		}
+        }
+    }
 
-	}
+    public void register( GameRunnable runnable )
+    {
+        this.queue.offer(runnable);
+    }
 
+    public void remove( GameRunnable runnable )
+    {
+        this.queue.remove( runnable );
+    }
 }

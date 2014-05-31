@@ -1,7 +1,9 @@
 package joozey.libs.powerup.control;
 
-public interface GameRunnable
+import joozey.libs.powerup.object.GameObject;
+
+public interface GameRunnable extends Runnable
 {
-	public void run( GameThread gameThread );
-	public boolean isInitialised();
+	public abstract void run();
+	public abstract boolean isInitialised();
 }

@@ -1,4 +1,4 @@
-package joozey.games.shellworlds.core;
+package joozey.games.shellworlds.core.objects;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -46,7 +46,7 @@ public class BodyData extends GameObject2DData
         this.angle = (float)(Math.random() * Math.PI*2f);
         this.distance = distance;
         this.size = size;
-        this.velocity = 4 * 33f / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
+        this.velocity = 4f * 33f / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
 
         this.mass = (float)Math.random() * 0.8f + 0.2f;
         this.density = (float)Math.random() * 0.9f + 0.1f;
@@ -123,7 +123,7 @@ public class BodyData extends GameObject2DData
     }
 
     public String readMassInfo() {
-        return "Mass scalar: " + (this.mass * 10);
+        return "Mass: " + (this.mass * 10);
     }
 
     public String readDensityInfo() {

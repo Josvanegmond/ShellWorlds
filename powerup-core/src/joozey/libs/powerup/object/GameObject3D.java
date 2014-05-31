@@ -1,6 +1,5 @@
 package joozey.libs.powerup.object;
 
-import joozey.libs.powerup.control.GameThread;
 import joozey.libs.powerup.graphics.DefaultModel;
 
 public class GameObject3D extends GameObject
@@ -20,7 +19,7 @@ public class GameObject3D extends GameObject
 	}
 	
 	@Override
-	public void run( GameThread gameThread )
+	public void run()
 	{
 		this.initialised = true;
 	}

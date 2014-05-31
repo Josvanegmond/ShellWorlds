@@ -12,14 +12,13 @@ import joozey.libs.powerup.object.BatchManager;
 
 public class DefaultAnimation extends DefaultSprite implements GameRunnable
 {
-	public static enum Frame
+    public static enum Frame
 	{
 		FIRST_FRAME,
 		LAST_FRAME,
 		NONE
 	};
-	
-	private GameThread gameThread;
+
 	private Animation spriteAnimation;
 	private TextureRegion[] keyFrames;
 	private float stateTime = 0.0f;
@@ -56,13 +55,10 @@ public class DefaultAnimation extends DefaultSprite implements GameRunnable
 		this.endFrame = endFrame;
 	}
 
-	public DefaultAnimation( GameThread gameThread, DefaultSprite spriteSheet,
+	public DefaultAnimation( DefaultSprite spriteSheet,
 			int frameCols, int frameRows, float animSpeed )
 	{
 		super( spriteSheet );
-
-		this.gameThread = gameThread;
-		this.gameThread.register( this );
 
 		this.keyFrames = cutToFrames( spriteSheet, frameCols, frameRows );
 		this.setSize( spriteSheet.getWidth() / frameCols,
@@ -126,7 +122,7 @@ public class DefaultAnimation extends DefaultSprite implements GameRunnable
 	}
 
 	@Override
-	public void run( GameThread gameThread )
+	public void run()
 	{
 		if( startDelay <= 0 )
 		{
@@ -160,11 +156,6 @@ public class DefaultAnimation extends DefaultSprite implements GameRunnable
 	public int getRemainingLoops()
 	{
 		return animateLoops;
-	}
-
-	public void remove()
-	{
-		gameThread.remove( this );
 	}
 
 	@Override
