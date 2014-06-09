@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 
-import joozey.libs.powerup.control.GameDrawable;
+import joozey.libs.powerup.game.GameData;
 import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.modifier.Modifier;
 
@@ -54,9 +54,9 @@ public abstract class GameObject2D extends GameObject
 	}
 
 
-    public final void draw( BatchManager.DrawType drawType )
+    public void draw( BatchManager.DrawType drawType )
     {
-        this.sprite.draw(drawType);
+        this.sprite.draw( drawType );
     }
 
 	@Override

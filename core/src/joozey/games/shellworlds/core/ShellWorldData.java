@@ -18,6 +18,23 @@ public class ShellWorldData extends GameData
 {
     public static final String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789][_!$%#@|\\/?-+=()*&.;,{}\"´`'<>";
 
+    private static ShellWorldData _instance;
+    public static ShellWorldData initInstance( float w, float h )
+    {
+        _instance = new ShellWorldData( w, h );
+        return _instance;
+    }
+
+    public static ShellWorldData getInstance()
+    {
+        if( _instance == null )
+        {
+            throw new Error("Not initialised ShellWorldData instance");
+        }
+        return _instance;
+    }
+
+
     private BodyObject followBodyObject;
     private BodyObject touchedBodyOrbit, touchedBody;
     private BitmapFont alienFont, normalFont;
@@ -26,11 +43,10 @@ public class ShellWorldData extends GameData
     private NinePatch infoDisplay;
     private ArrayList<BodyObject> bodyObjectList;
 
-    public ShellWorldData( float width, float height ) {
+    private ShellWorldData( float width, float height ) {
         super(width, height);
         this.bodyObjectList = new ArrayList<BodyObject>();
     }
-
 
     public BodyObject getFollowBodyObject() {
         return followBodyObject;

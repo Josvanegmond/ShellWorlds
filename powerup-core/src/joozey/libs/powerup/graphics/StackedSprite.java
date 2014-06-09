@@ -48,7 +48,7 @@ public class StackedSprite extends DefaultSprite
 	}
 
     @Override
-    public void draw( BatchManager.DrawType drawType )
+    public void draw(BatchManager.DrawType drawType)
     {
         super.draw(drawType);
 
@@ -58,7 +58,7 @@ public class StackedSprite extends DefaultSprite
             {
                 //Vector2 origOffset = sprite.getOffset();
                 //sprite.setOffset( origOffset.x + this.offsetX, origOffset.y + this.offsetY );
-                sprite.draw( drawType );
+                sprite.draw( drawType);
                 //sprite.setOffset( origOffset.x, origOffset.y );
             }
         }

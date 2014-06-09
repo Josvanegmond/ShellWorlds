@@ -13,13 +13,12 @@ public class ShellWorlds
 
     public ShellWorlds()
     {
-        ShellWorldData shellWorldData = new ShellWorldData( 0, 0 );
+        ShellWorldData shellWorldData = ShellWorldData.initInstance( 0, 0 );
 
         renderThread = new RenderThread( shellWorldData );
         logicThread = new LogicThread( shellWorldData );
 
         ThreadManager.init( renderThread, logicThread );
-        ThreadManager.register( new BodyControl( shellWorldData ), ThreadManager.ThreadType.LOGIC );
     }
 
     public RenderThread getRenderThread()

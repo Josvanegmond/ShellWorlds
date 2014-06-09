@@ -87,7 +87,7 @@ public class DefaultSprite extends Sprite
 		this.setOrigin( texture.getWidth() / 2, texture.getHeight() / 2 );
 	}
 
-    public void draw( BatchManager.DrawType drawType )
+    public void draw(DrawType drawType)
     {
         if( drawType == DrawType.BATCH ) {
             this.drawBatch();

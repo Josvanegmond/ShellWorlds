@@ -30,6 +30,7 @@ public class BodyData extends GameObject2DData
     private ArrayList<BodyObject> reachableBodyList;
     private BodyType bodyType;
     private double buildProgress;
+    private int years;
 
     private float mass;
     private float density;
@@ -47,6 +48,7 @@ public class BodyData extends GameObject2DData
         this.distance = distance;
         this.size = size;
         this.velocity = 4f * 33f / distance;    //based on an orbitperiod : distance ratio of 1 : 3.3*10^18
+        this.years = 0;
 
         this.mass = (float)Math.random() * 0.8f + 0.2f;
         this.density = (float)Math.random() * 0.9f + 0.1f;
@@ -62,7 +64,7 @@ public class BodyData extends GameObject2DData
         }
 
         Color color = new Color();
-        ColorMath.xform(color, 0.2f, ColorMath.ColorC.LUMINANCE, true);
+        ColorMath.xform(color, .2f, ColorMath.ColorC.LUMINANCE, true);
         ColorMath.xform( color, 1f, ColorMath.ColorC.SATURATION, true );
         ColorMath.xform( color, (float)Math.random(), ColorMath.ColorC.HUE, true );
         color.a = 1f;
@@ -94,7 +96,16 @@ public class BodyData extends GameObject2DData
     }
 
     public double getAngle() { return this.angle; }
-    public void addAngle( double amount ) { this.angle += amount/(Math.PI*2); }
+    public void addAngle( double amount )
+    {
+        //made a revolution
+        if( (this.angle % 360) + (amount / (Math.PI * 2.)) >= 360 )
+        {
+            this.years++;
+        }
+
+        this.angle += amount/(Math.PI*2.);
+    }
 
     public double getVelocity()
     {
@@ -136,6 +147,11 @@ public class BodyData extends GameObject2DData
 
     public String readDiversityInfo() {
         return "Diversity variable: " + (this.diversity + 10);
+    }
+
+    public int getYears()
+    {
+        return this.years;
     }
 
     public double getReach() {

@@ -1,8 +1,8 @@
 package joozey.games.shellworlds.core.control;
 
 import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import joozey.games.shellworlds.core.objects.BodyData;
 import joozey.games.shellworlds.core.objects.BodyObject;
 import joozey.games.shellworlds.core.ShellWorldData;
+import joozey.games.shellworlds.core.objects.ShellObject;
 import joozey.libs.powerup.control.GameThread;
+import joozey.libs.powerup.control.ThreadManager;
 import joozey.libs.powerup.game.GameData;
 import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.object.BatchManager;
@@ -66,24 +68,7 @@ public class RenderThread extends GameThread implements ApplicationListener, Inp
         inputMultiplexer.addProcessor( this );
 
 
-
-
-
-        BodyObject star = new BodyObject( BodyData.BodyType.STAR, "star", 0.001f, 12f + (float)(Math.random() * 4f), 0 );
-        this.shellWorldData.addBody( star );
-
-        String[] planets = { "brown-planet", "blue-planet", "purple-planet" };
-
-        float minDistance = 6000;
-        for( int i = 0; i < 10; i++ )
-        {
-            minDistance += 2000f + (5000f * (int)( Math.random() * 3f ) ) + (float) Math.random() * 500f;
-            BodyObject planet = new BodyObject( BodyData.BodyType.PLANET, planets[(int) (Math.random() * planets.length)], minDistance, (float) Math.random() * 1f + 1f, 15000);// ((int)(Math.random()*2)==0)?true:false );
-            this.shellWorldData.addBody( planet );
-        }
-
-        this.shellWorldData.setFollowBodyObject( star );
-
+        ThreadManager.register(new BodyControl(shellWorldData), ThreadManager.ThreadType.LOGIC);
 
 
 
@@ -238,6 +223,12 @@ public class RenderThread extends GameThread implements ApplicationListener, Inp
                 normalFont.draw( batch, bodyData.readBuildingProgress(), GameData.getWidth() * 5f/7f, GameData.getHeight() / 2 + 80f );
             }
 
+            ShellObject shell = touchedBody.getShell();
+            if( shell != null )
+            {
+                shell.getView().drawInfo( normalFont );
+            }
+
             batch.draw( touchedBody.getSprite(), 210, GameData.getHeight() - 84, 80, 80 );
         }
 
@@ -280,7 +271,17 @@ public class RenderThread extends GameThread implements ApplicationListener, Inp
 
 
     @Override
-    public boolean keyDown(int i) {
+    public boolean keyDown(int i)
+    {
+        if( i == Input.Keys.PAGE_UP ) {
+            this.doScroll(-20f * this.camera.zoom / (3f * this.camera.zoom));
+        }
+
+        if( i == Input.Keys.PAGE_DOWN )
+        {
+            this.doScroll( 20f * this.camera.zoom / (3f * this.camera.zoom) );
+        }
+
         return false;
     }
 

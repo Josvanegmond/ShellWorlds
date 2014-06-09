@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import joozey.games.shellworlds.core.ShellWorldData;
 import joozey.games.shellworlds.core.objects.BodyData;
 import joozey.games.shellworlds.core.objects.BodyObject;
+import joozey.games.shellworlds.core.objects.ShellObject;
 import joozey.libs.powerup.control.GameRunnable;
 
 /**
@@ -18,6 +19,25 @@ public class BodyControl implements GameRunnable
     public BodyControl( ShellWorldData shellWorldData )
     {
         this.shellWorldData = shellWorldData;
+
+        BodyObject star = new BodyObject( BodyData.BodyType.STAR, "star", 0.001f, 12f + (float)(Math.random() * 4f), 0 );
+        this.shellWorldData.addBody(star);
+
+        String[] planets = { "brown-planet", "blue-planet", "purple-planet" };
+
+        float minDistance = 6000;
+        for( int i = 0; i < 10; i++ )
+        {
+            minDistance += 2000f + (5000f * (int)( Math.random() * 3f ) ) + (float) Math.random() * 500f;
+            BodyObject planet = new BodyObject( BodyData.BodyType.PLANET, planets[(int) (Math.random() * planets.length)], minDistance, (float) Math.random() * 1f + 1f, 15000);// ((int)(Math.random()*2)==0)?true:false );
+            this.shellWorldData.addBody( planet );
+
+            ShellObject shell = new ShellObject( planet.getData(), ShellObject.Type.values()[ (int)(Math.random() * ShellObject.Type.values().length) ] );
+            planet.setShell( shell );
+        }
+
+        this.shellWorldData.setFollowBodyObject( star );
+
         this.initialised = true;
     }
 

@@ -2,6 +2,7 @@ package joozey.games.shellworlds.core.objects;
 
 import joozey.libs.powerup.game.GameData;
 import joozey.libs.powerup.graphics.DefaultSprite;
+import joozey.libs.powerup.object.BatchManager;
 import joozey.libs.powerup.object.GameObject2D;
 
 /**
@@ -19,7 +20,7 @@ public class BodyObject extends GameObject2D
         bodyData = new BodyData( type, distance, size * bodyView.getWidth(), reach );
         bodyView.setData( bodyData );
 
-        this.shellObject = new ShellObject( bodyData, ShellObject.Type.RESIDENTIAL );
+        this.shellObject = null;
 
         super.init( bodyData, bodyView );
     }
@@ -34,6 +35,9 @@ public class BodyObject extends GameObject2D
     public void run()
     {
         bodyData.addAngle( bodyData.getVelocity() * GameData.getSpeed() );
+
+        if( this.shellObject != null ) { this.shellObject.run(); }
+
         super.run();
     }
 
@@ -45,6 +49,8 @@ public class BodyObject extends GameObject2D
                 bodyData.getDistance() * (float)Math.sin( bodyData.getAngle() )
         );
 
+        if( this.shellObject != null ) { this.shellObject.update(); }
+
         super.update();
     }
 
@@ -55,6 +61,13 @@ public class BodyObject extends GameObject2D
     public void setShell( ShellObject shellObject)
     {
         this.shellObject = shellObject;
+    }
+
+    @Override
+    public void draw( BatchManager.DrawType drawType )
+    {
+        super.draw( drawType );
+        if( this.shellObject != null ) { this.shellObject.draw( drawType ); }
     }
 
 
