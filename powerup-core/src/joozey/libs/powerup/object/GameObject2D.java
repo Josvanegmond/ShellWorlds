@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 
-import joozey.libs.powerup.game.GameData;
 import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.modifier.Modifier;
 
@@ -53,12 +52,6 @@ public abstract class GameObject2D extends GameObject
 		this.data.setDestroyed();
 	}
 
-
-    public void draw( BatchManager.DrawType drawType )
-    {
-        this.sprite.draw( drawType );
-    }
-
 	@Override
 	public void update()
 	{
@@ -72,17 +65,12 @@ public abstract class GameObject2D extends GameObject
 		Vector2 position = data.getPosition();
 		Vector2 offset = data.getOffset();
 		Vector2 size = data.getSize();
-		
-		this.sprite.setPosition( position.x - size.x/2, position.y - size.y/2 );
+
 		this.sprite.setSize(size.x, size.y);
+		this.sprite.setPosition( position.x, position.y );
+		this.sprite.setOffset( offset.x, offset.y );
 	}
-
-	public void update( Vector2 position )
-	{
-		this.data.setPosition( position.x, position.y );
-		this.update();
-	}
-
+	
 	public void addModifier( Modifier... modifiers )
 	{
 		for( Modifier modifier : modifiers )

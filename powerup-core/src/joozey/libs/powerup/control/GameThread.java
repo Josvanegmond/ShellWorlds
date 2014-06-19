@@ -1,12 +1,6 @@
 package joozey.libs.powerup.control;
 
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-
-import joozey.libs.powerup.game.GameData;
-import joozey.libs.powerup.graphics.DefaultAnimation;
 
 /**
  * Created by acer on 31-5-2014.

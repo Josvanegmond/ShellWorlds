@@ -9,21 +9,21 @@ import joozey.libs.powerup.object.GameObject2D;
 
 public class GameData
 {
-	private Camera camera;
+	private static Camera camera;
 	private static float width, height;
     private static float speed;
 	
-	private boolean gameStarted;
-	private boolean gameFinished;
+	private static boolean gameStarted;
+	private static boolean gameFinished;
 	
-	private LinkedList<GameObject2D> gameObjectList;
+	private static LinkedList<GameObject2D> gameObjectList;
 	
 	public GameData( float width, float height )
 	{
 		GameData.width = width;
 		GameData.height = height; 
 		
-		this.gameObjectList = new LinkedList<GameObject2D>();
+		GameData.gameObjectList = new LinkedList<GameObject2D>();
 	}
 	
 	public void setSize( float width, float height )
@@ -34,7 +34,7 @@ public class GameData
 	
 	public void addGameObject( GameObject2D gameObject )
 	{
-		this.gameObjectList.add( gameObject );
+		GameData.gameObjectList.add( gameObject );
 	}
 	
 	public LinkedList<GameObject2D> getGameObjects()
@@ -43,34 +43,34 @@ public class GameData
 		return objectList;
 	}
 	
-	public Camera getCamera()
+	public static Camera getCamera()
 	{
-		return this.camera;
+		return camera;
 	}
 	
-	public void setCamera( Camera camera )
+	public static void setCamera( Camera camera )
 	{
-		this.camera = camera;
+		GameData.camera = camera;
 	}
 	
 	public void setGameFinished(boolean b)
 	{
-		this.gameFinished = b;
+		GameData.gameFinished = b;
 	}
 	
 	public boolean getGameFinished()
 	{
-		return this.gameFinished;
+		return GameData.gameFinished;
 	}
 	
 	public void setGameStarted( boolean b )
 	{
-		this.gameStarted = b;
+		GameData.gameStarted = b;
 	}
 	
 	public boolean getGameStarted()
 	{
-		return this.gameStarted;
+		return GameData.gameStarted;
 	}
 	
 	public static float getWidth()
@@ -88,7 +88,7 @@ public class GameData
 
     public static double getSpeed()
     {
-        return 3.;
+        return 1;
     }
 
     public static void setSpeed( float speed )

@@ -1,21 +1,20 @@
 package joozey.libs.powerup.graphics;
 
+import joozey.libs.powerup.util.DefaultColors;
+import joozey.libs.powerup.graphics.MatrixSet.MatrixType;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
-import joozey.libs.powerup.object.BatchManager;
-import joozey.libs.powerup.object.BatchManager.DrawType;
-import joozey.libs.powerup.util.DefaultColors;
-
-public class DefaultSprite extends Sprite
+public class DefaultSprite extends Sprite implements Renderable
 {
     public static Texture stringToTexture( String bitmapName )
     {
@@ -31,10 +30,15 @@ public class DefaultSprite extends Sprite
 	private float x, y;
 	private String bitmapName;
 	private float alpha = 1f;
-	private float lightValue = 0f;
-	private Sprite alphamapSprite;
-	private Pixmap spritePixmap;
     private ShapeRenderer.ShapeType shapeType;
+    private NinePatch ninePatch;
+    
+    public DefaultSprite( NinePatch ninePatch )
+    {
+    	super( ninePatch.getTexture() );
+    	this.ninePatch = ninePatch;
+		setDefaultValues();
+    }
 
     public DefaultSprite( String bitmapName )
 	{
@@ -83,25 +87,22 @@ public class DefaultSprite extends Sprite
 
 		// set size to match aspect ratio of view
 		this.setSize( texture.getWidth(), texture.getHeight() );
-		this.setPosition( 0, 0 );
-		this.setOrigin( texture.getWidth() / 2, texture.getHeight() / 2 );
+		this.setOffset( 0, 0 );
+		this.setCenter(0, 0);
+		this.setOriginCenter();
 	}
 
-    public void draw(DrawType drawType)
-    {
-        if( drawType == DrawType.BATCH ) {
-            this.drawBatch();
-        }
-
-        if( drawType == DrawType.SHAPE ) {
-            this.drawShape();
-        }
-    }
 
     @Override
-    public final void draw( Batch batch )
+    public void draw( Batch batch )
     {
-        super.setPosition( this.x + this.offsetX, this.y + this.offsetY );
+    	super.setOriginCenter();
+    	super.setCenter( this.x + offsetX, this.y + offsetY );
+        
+        if( this.ninePatch != null )
+        {
+        	this.ninePatch.draw(batch, offsetX, offsetY, this.getWidth(), this.getHeight() );
+        }
 
         Color color = super.getColor();
         float oldAlpha = color.a;
@@ -114,12 +115,19 @@ public class DefaultSprite extends Sprite
         super.setColor(color);
     }
 
-	protected void drawBatch()
+    @Override
+	public void drawSpriteBatch( Batch batch, MatrixType matrixType )
 	{
-		this.draw( BatchManager.getSpriteBatch() );
+		this.draw( batch );
 	}
-    protected void drawShape() { }
 
+	@Override
+	public void drawShape(ShapeRenderer shapeRenderer) { }
+
+	@Override
+    public void drawModelBatch( ModelBatch batch ) { }
+	
+	
 	@Override
 	public void setPosition( float x, float y )
 	{
@@ -147,6 +155,12 @@ public class DefaultSprite extends Sprite
 	{
 		return new Vector2( this.offsetX, this.offsetY );
 	}
+	
+	@Override
+	public void setSize( float x, float y )
+	{
+		super.setSize( x, y );
+	}
 
 	public void setWidth( float width )
 	{
@@ -161,11 +175,6 @@ public class DefaultSprite extends Sprite
 	public void setAlpha( float alpha )
 	{
 		this.alpha = alpha;
-	}
-
-	public void setLightValue( float lightValue )
-	{
-		this.lightValue = lightValue;
 	}
 
     public ShapeRenderer.ShapeType getShapeType() {

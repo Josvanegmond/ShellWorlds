@@ -1,18 +1,17 @@
 package joozey.libs.powerup.graphics;
 
+import java.util.Stack;
+
+import joozey.libs.powerup.graphics.MatrixSet.MatrixType;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-
-import java.util.Stack;
-
-import joozey.libs.powerup.object.BatchManager;
 
 public class StackedSprite extends DefaultSprite
 {
-	private float offsetX = 0, offsetY = 0;
-	
 	private Stack<DefaultSprite> spriteStack;
 	
 	public StackedSprite( int width, int height )
@@ -25,7 +24,6 @@ public class StackedSprite extends DefaultSprite
 	{
 		super( sprite );
 		this.spriteStack = new Stack<DefaultSprite>();
-        sprite.setOffset( offsetX, offsetY );
 		this.setOffset( offsetX, offsetY );
 	}
 	
@@ -48,18 +46,15 @@ public class StackedSprite extends DefaultSprite
 	}
 
     @Override
-    public void draw(BatchManager.DrawType drawType)
+    public void drawSpriteBatch( Batch batch, MatrixType matrixType )
     {
-        super.draw(drawType);
+        super.drawSpriteBatch(batch, matrixType);
 
         for( DefaultSprite sprite : this.spriteStack )
         {
             if( sprite != this )
             {
-                //Vector2 origOffset = sprite.getOffset();
-                //sprite.setOffset( origOffset.x + this.offsetX, origOffset.y + this.offsetY );
-                sprite.draw( drawType);
-                //sprite.setOffset( origOffset.x, origOffset.y );
+                sprite.drawSpriteBatch(batch, matrixType);
             }
         }
     }
@@ -111,16 +106,40 @@ public class StackedSprite extends DefaultSprite
 		}
 	}
 	
+	
+	@Override
+	public void setSize( float x, float y )
+	{
+		super.setSize( x,  y );
+		if( this.spriteStack != null )
+		{
+			for( DefaultSprite sprite : this.spriteStack )
+			{
+				sprite.setSize( x, y );
+			}
+		}
+	}
+	
 	@Override
 	public void setOffset( float x, float y )
 	{
-		this.offsetX = x;
-		this.offsetY = y;
+		super.setOffset( x, y );
+
+		if( this.spriteStack != null )
+		{
+			for( DefaultSprite sprite : this.spriteStack )
+			{
+				sprite.setOffset( x, y );
+			}
+		}
 	}
 	
 	public void addSprite( DefaultSprite sprite, float offsetX, float offsetY )
 	{
-		sprite.setOffset( offsetX, offsetY );
 		this.spriteStack.push( sprite );
+		
+		this.setScale( this.getScaleX(), this.getScaleY() );
+		this.setSize( this.getWidth(), this.getHeight() );
+		this.setOffset( offsetX, offsetY );
 	}
 }

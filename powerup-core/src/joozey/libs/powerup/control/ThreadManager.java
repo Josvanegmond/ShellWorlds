@@ -1,13 +1,5 @@
 package joozey.libs.powerup.control;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
-import joozey.libs.powerup.game.GameData;
-
 /**
  * Created by acer on 31-5-2014.
  */

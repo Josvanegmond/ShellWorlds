@@ -1,13 +1,13 @@
 package joozey.libs.powerup.graphics;
 
+import joozey.libs.powerup.control.GameRunnable;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
-import joozey.libs.powerup.control.GameRunnable;
-import joozey.libs.powerup.object.BatchManager;
 
 public class DefaultAnimation extends DefaultSprite implements GameRunnable
 {
@@ -83,7 +83,7 @@ public class DefaultAnimation extends DefaultSprite implements GameRunnable
 	}
 
 	@Override
-	public void draw(BatchManager.DrawType drawType)
+	public void draw( Batch batch )
 	{
 		if( this.stateTime - this.startDelay > 0 && this.animateLoops != 0 )
 		{
@@ -95,7 +95,7 @@ public class DefaultAnimation extends DefaultSprite implements GameRunnable
 			// this.setSize( region.getRegionWidth(), region.getRegionHeight()
 			// );
 
-			super.draw( drawType);
+			super.draw( batch );
 		}
 
 		else if( this.endFrame != Frame.NONE )
@@ -116,7 +116,7 @@ public class DefaultAnimation extends DefaultSprite implements GameRunnable
 			// this.setSize( region.getRegionWidth(), region.getRegionHeight()
 			// );
 
-			super.draw( drawType);
+			super.draw( batch );
 		}
 	}
 

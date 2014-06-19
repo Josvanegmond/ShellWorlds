@@ -2,7 +2,6 @@ package joozey.libs.powerup.modifier;
 
 import joozey.libs.powerup.graphics.DefaultSprite;
 import joozey.libs.powerup.object.GameObject2DData;
-import com.badlogic.gdx.graphics.Color;
 
 public class FadeModifier extends Modifier
 {
